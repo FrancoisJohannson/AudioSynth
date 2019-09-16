@@ -58,6 +58,7 @@ import java.awt.*
 import javax.sound.sampled.*
 import java.io.*
 import java.util.Date
+import kotlin.system.exitProcess
 
 class AudioSynth01
 //-------------------------------------------//
@@ -94,6 +95,7 @@ private constructor() : JFrame() {
     private val decayPulse = JRadioButton("Decay Pulse")
     private val echoPulse = JRadioButton("Echo Pulse")
     private val waWaPulse = JRadioButton("WaWa Pulse")
+    private val sineWave = JRadioButton("sineWave")
 
     //Following components appear in the South
     // position of the GUI.
@@ -133,13 +135,23 @@ private constructor() : JFrame() {
         channels = 1
         audioData = ByteArray(16000 * 4)
         //end actionPerformed
-        generateBtn.addActionListener { e ->
+        generateBtn.addActionListener {
             //Don't allow Play during generation
             playOrFileBtn.isEnabled = false
             //Generate synthetic data
             val sg = SynGen()
             sg.getSyntheticData(audioData)
 
+            //Decide which synthetic data generator
+            // method to invoke based on which radio
+            // button the user selected in the Center of
+            // the GUI.  If you add more methods for
+            // other synthetic data types, you need to
+            // add corresponding radio buttons to the
+            // GUI and add statements here to test the
+            // new radio buttons.  Make additions here
+            // if you add new synthetic generator
+            // methods.
             if (tones.isSelected) channels = sg.tones(sampleRate)
             if (stereoPanning.isSelected)
                 channels = sg.stereoPanning(sampleRate)
@@ -149,6 +161,7 @@ private constructor() : JFrame() {
             if (decayPulse.isSelected) channels = sg.decayPulse(sampleRate)
             if (echoPulse.isSelected) channels = sg.echoPulse(sampleRate)
             if (waWaPulse.isSelected) channels = sg.waWaPulse(sampleRate)
+            if (sineWave.isSelected) channels = sg.sineWave(sampleRate)
 
             //Now it is OK for the user to listen
             // to or file the synthetic audio data.
@@ -156,8 +169,8 @@ private constructor() : JFrame() {
         }//end addActionListener()
 
         //end actionPerformed
-        playOrFileBtn.addActionListener { e ->
-            //Play or file the data synthetic data
+        playOrFileBtn.addActionListener {
+            /* Play or file the data synthetic data */
             playOrFileData()
         }//end addActionListener()
 
@@ -178,6 +191,7 @@ private constructor() : JFrame() {
         synButtonGroup.add(decayPulse)
         synButtonGroup.add(echoPulse)
         synButtonGroup.add(waWaPulse)
+        synButtonGroup.add(sineWave)
 
         //Add radio buttons to a physical group and
         // center it in the Center of the GUI. Make
@@ -191,6 +205,7 @@ private constructor() : JFrame() {
         synButtonPanel.add(decayPulse)
         synButtonPanel.add(echoPulse)
         synButtonPanel.add(waWaPulse)
+        synButtonPanel.add(sineWave)
 
         //Note that the centerPanel has center
         // alignment by default.
@@ -321,7 +336,7 @@ private constructor() : JFrame() {
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    System.exit(0)
+                    exitProcess(0)
                 }
                 //end catch
 
@@ -331,7 +346,7 @@ private constructor() : JFrame() {
             }//end else
         } catch (e: Exception) {
             e.printStackTrace()
-            System.exit(0)
+            exitProcess(0)
         }
         //end catch
     }//end playOrFileData
@@ -343,7 +358,7 @@ private constructor() : JFrame() {
         // at runtime.  Values allowed by Java
         // SDK 1.4.1 are shown in comments.
 
-        private val sampleRate = 16000.0f
+        private const val sampleRate = 16000.0f
 
         //-------------------------------------------//
         @JvmStatic

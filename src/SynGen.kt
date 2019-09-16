@@ -2,6 +2,7 @@
 
 import java.nio.ByteBuffer
 import java.nio.ShortBuffer
+import kotlin.math.sin
 
 //An object of this class can be used to
 // generate a variety of different synthetic
@@ -26,16 +27,7 @@ internal class SynGen {
 
         byteLength = synDataBuffer.size
 
-        //Decide which synthetic data generator
-        // method to invoke based on which radio
-        // button the user selected in the Center of
-        // the GUI.  If you add more methods for
-        // other synthetic data types, you need to
-        // add corresponding radio buttons to the
-        // GUI and add statements here to test the
-        // new radio buttons.  Make additions here
-        // if you add new synthetic generator
-        // methods.
+
 
 
     }//end getSyntheticData method
@@ -44,24 +36,47 @@ internal class SynGen {
     //This method generates a monaural tone
     // consisting of the sum of three sinusoids.
     fun tones(sampleRate: Float): Int {
-        var sampleRate = sampleRate
+        //var sampleRate = sampleRate
         //Each channel requires two 8-bit bytes per
         // 16-bit sample.
         val bytesPerSamp = 2
-        sampleRate = 16000.0f
+        //sampleRate = 16000.0f
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
             val freq = 950.0//arbitrary frequency
-            val sinValue = (Math.sin(2.0 * Math.PI * freq * time) +
-                    Math.sin(2.0 * Math.PI * (freq / 1.8) * time) +
-                    Math.sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
+            val sinValue = (sin(2.0 * Math.PI * freq * time) +
+                    sin(2.0 * Math.PI * (freq / 1.8) * time) +
+                    sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
             shortBuffer!!.put((16000 * sinValue).toShort())
         }//end for loop
 
         return 1
     }//end method tones
+    //-------------------------------------------//
+
+    fun sineWave(sampleRate: Float): Int {
+        //var sampleRate = sampleRate
+        //Each channel requires two 8-bit bytes per
+        // 16-bit sample.
+        val bytesPerSamp = 2
+        //sampleRate = 16000.0f
+        // Allowable 8000,11025,16000,22050,44100
+        val sampLength = byteLength / bytesPerSamp
+        for (cnt in 0 until sampLength) {
+            val time = (cnt / sampleRate).toDouble()
+            val freq = 440.0//arbitrary frequency
+            val sinValue = //(
+                    sin(2.0 * Math.PI * freq * time)
+                    //+ sin(2.0 * Math.PI * (freq / 1.8) * time)
+                    //+ sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
+
+            shortBuffer!!.put((16000 * sinValue).toShort())
+        }//end for loop
+
+        return 1
+    }//end method mySound
     //-------------------------------------------//
 
     //This method generates a stereo speaker sweep,
@@ -124,12 +139,12 @@ internal class SynGen {
         val time = (cnt / sampleRate).toDouble()
         val freq = 600.0//An arbitrary frequency
         //Generate data for left speaker
-        var sinValue = Math.sin(2.0 * Math.PI * freq * time)
+        var sinValue = sin(2.0 * Math.PI * freq * time)
         shortBuffer!!.put(
             (leftGain * sinValue).toShort()
         )
         //Generate data for right speaker
-        sinValue = Math.sin(2.0 * Math.PI * (freq * 0.8) * time)
+        sinValue = sin(2.0 * Math.PI * (freq * 0.8) * time)
         shortBuffer!!.put(
             (rightGain * sinValue).toShort()
         )
@@ -149,7 +164,7 @@ internal class SynGen {
             val time = (cnt / sampleRate).toDouble()
 
             val freq = lowFreq + cnt * (highFreq - lowFreq) / sampLength
-            val sinValue = Math.sin(2.0 * Math.PI * freq * time)
+            val sinValue = sin(2.0 * Math.PI * freq * time)
             shortBuffer!!.put((16000 * sinValue).toShort())
         }//end for loop
 
@@ -172,9 +187,9 @@ internal class SynGen {
             val gain = 16000 * (sampLength - scale) / sampLength
             val time = (cnt / sampleRate).toDouble()
             val freq = 499.0//an arbitrary freq
-            val sinValue = (Math.sin(2.0 * Math.PI * freq * time) +
-                    Math.sin(2.0 * Math.PI * (freq / 1.8) * time) +
-                    Math.sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
+            val sinValue = (sin(2.0 * Math.PI * freq * time) +
+                    sin(2.0 * Math.PI * (freq / 1.8) * time) +
+                    sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
             shortBuffer!!.put((gain * sinValue).toShort())
         }//end for loop
 
@@ -225,23 +240,6 @@ internal class SynGen {
         return 1
 
     }//end method echoPulse
-    //-------------------------------------------//
-
-    //    private double echoPulseHelper(int cnt, int sampLength, float sampleRate){
-    //        //The value of scale controls the rate of
-    //        // decay - large scale, fast decay.
-    //        double scale = 2*cnt;
-    //        if(scale > sampLength) scale = sampLength;
-    //        double gain =
-    //                16000*(sampLength-scale)/sampLength;
-    //        double time = cnt/sampleRate;
-    //        double freq = 499.0;//an arbitrary freq
-    //        double sinValue =
-    //                (Math.sin(2*Math.PI*freq*time) +
-    //                        Math.sin(2*Math.PI*(freq/1.8)*time) +
-    //                        Math.sin(2*Math.PI*(freq/1.5)*time))/3.0;
-    //        return(short)(gain*sinValue);
-    //    }//end echoPulseHelper
 
     //-------------------------------------------//
 
@@ -258,9 +256,9 @@ internal class SynGen {
     // resulted in a difference in the
     // sound.
     fun waWaPulse(sampleRate: Float): Int {
-        var sampleRate = sampleRate
+        //var sampleRate = sampleRate
         val bytesPerSamp = 2//Based on channels
-        sampleRate = 16000.0f
+        //sampleRate = 16000.0f
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
         var cnt2 = -8000
@@ -306,9 +304,9 @@ internal class SynGen {
         val gain = 16000 * (sampLength - scale) / sampLength
         val time = (cnt / sampleRate).toDouble()
         val freq = 499.0//an arbitrary freq
-        val sinValue = (Math.sin(2.0 * Math.PI * freq * time) +
-                Math.sin(2.0 * Math.PI * (freq / 1.8) * time) +
-                Math.sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
+        val sinValue = (sin(2.0 * Math.PI * freq * time) +
+                sin(2.0 * Math.PI * (freq / 1.8) * time) +
+                sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
         return (gain * sinValue).toShort().toDouble()
     }//end waWaPulseHelper
 
