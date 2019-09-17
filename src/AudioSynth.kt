@@ -259,13 +259,18 @@ class AudioSynth01
 
         addKeyListener(this)
         setFocusable(true)
-        focusTraversalKeysEnabled = false
+        focusTraversalKeysEnabled = true
+
+        tones.setSelected(true)
+        performGenerate()
 
     }//end constructor
     //-------------------------------------------/
 
     override fun keyTyped(e: KeyEvent) {
-        println("keyTyped")
+        println("keyTyped: "+ e.keyChar)
+        playThread=Thread{ playDirectly() }
+        playThread.start()
     }
 
     override fun keyPressed(e: KeyEvent) {
@@ -309,6 +314,8 @@ class AudioSynth01
         //Now it is OK for the user to listen
         // to or file the synthetic audio data.
         playOrFileBtn.isEnabled = true
+
+        this.requestFocus()
 
     }
 
