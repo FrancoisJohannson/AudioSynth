@@ -63,8 +63,11 @@ import kotlin.system.exitProcess
 class AudioSynth01
 //-------------------------------------------//
 
-private constructor() : JFrame() {
+    : JFrame() {
     //Allowable 8000,11025,16000,22050,44100
+
+    private val sampleRate = 16000.0f
+
 
     private var channels: Int = 0
     // Allowable 1,2
@@ -162,6 +165,8 @@ private constructor() : JFrame() {
             if (echoPulse.isSelected) channels = sg.echoPulse(sampleRate)
             if (waWaPulse.isSelected) channels = sg.waWaPulse(sampleRate)
             if (sineWave.isSelected) channels = sg.sineWave(sampleRate)
+
+            Scope(audioData,16000.0,4)
 
             //Now it is OK for the user to listen
             // to or file the synthetic audio data.
@@ -351,22 +356,6 @@ private constructor() : JFrame() {
         //end catch
     }//end playOrFileData
 
-    companion object {
 
-        //The following are audio format parameters.
-        // They may be modified by the signal generator
-        // at runtime.  Values allowed by Java
-        // SDK 1.4.1 are shown in comments.
-
-        private const val sampleRate = 16000.0f
-
-        //-------------------------------------------//
-        @JvmStatic
-        fun main(
-            args: Array<String>
-        ) {
-            AudioSynth01()
-        }//end main
-    }
 
 }//end outer class AudioSynth01.java
