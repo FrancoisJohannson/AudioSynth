@@ -60,8 +60,8 @@ import java.io.*
 import java.util.Date
 import kotlin.system.exitProcess
 import javax.swing.JCheckBox
-import java.awt.AWTEventMulticaster.getListeners
-import java.lang.Integer
+
+
 
 
 
@@ -77,6 +77,7 @@ class AudioSynth01
     private var channels: Int = 0
     // Allowable 1,2
 
+    private var playThread=Thread{ playDirectly() }
 
     private val bigEndian: Boolean
     //Allowable true,false
@@ -162,9 +163,15 @@ class AudioSynth01
 
         playLoop.addActionListener {
             /* Play or file the data synthetic data */
-            playDirectly(4)
+            playThread=Thread{ playDirectly() }//.start()
+            playThread.start()
         }//end addActionListener()
 
+
+        toggleLoop.addActionListener{
+            if ( !toggleLoop.isSelected())
+                playThread.stop()
+        }
 
         //Add two buttons and a text field to a
         // physical group in the North of the GUI.
@@ -295,7 +302,7 @@ class AudioSynth01
 
 
 
-        return channels;
+        return channels
     }
 
     private fun showScope() {
@@ -321,8 +328,9 @@ class AudioSynth01
     }
 
 
-    private fun playDirectly(numloops: Int) {
 
+
+    private fun playDirectly() {
 
 
         //Get the required audio format
@@ -365,7 +373,7 @@ class AudioSynth01
             val audioInputStream = AudioInputStream(byteArrayInputStream, audioFormat, (audioData.size / audioFormat.frameSize).toLong())
 
             var cnt: Int
-            val playBuffer: ByteArray = ByteArray(16384)
+            val playBuffer = ByteArray(16384)
 
             //Transfer the audio data to the speakers
             while (true) {
@@ -426,7 +434,9 @@ class AudioSynth01
 
                 showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
-                playDirectly(1)                //Get and display the elapsed time for
+
+                playDirectly()                //Get and display the elapsed time for
+
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
                 elapsedTimeMeter.text = "elapsed time: " + elapsedTime
