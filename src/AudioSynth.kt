@@ -59,6 +59,11 @@ import javax.sound.sampled.*
 import java.io.*
 import java.util.Date
 import kotlin.system.exitProcess
+import javax.swing.JCheckBox
+import java.awt.AWTEventMulticaster.getListeners
+import java.lang.Integer
+
+
 
 class AudioSynth01
 //-------------------------------------------//
@@ -81,11 +86,13 @@ class AudioSynth01
     // 16-bit samples
     private val audioData: ByteArray
 
+
     //Following components appear in the North
     // position of the GUI.
-    private val generateBtn = JButton("Generate")
+    private val showScopeBtn = JButton("Show Scope")
     private val playOrFileBtn = JButton("Play/File")
     private val playLoop = JButton("Play Loop")
+    private val toggleLoop = JCheckBox("loop")
     private val elapsedTimeMeter = JLabel("0000")
 
     //Following radio buttons select a synthetic
@@ -138,39 +145,14 @@ class AudioSynth01
         // Generate button and the Play/File button.
         channels = 1
         audioData = ByteArray(16000 * 4)
+
+
         //end actionPerformed
-        generateBtn.addActionListener {
-            //Don't allow Play during generation
-            playOrFileBtn.isEnabled = false
-            //Generate synthetic data
-            val sg = SynGen()
-            sg.getSyntheticData(audioData)
-
-            //Decide which synthetic data generator
-            // method to invoke based on which radio
-            // button the user selected in the Center of
-            // the GUI.  If you add more methods for
-            // other synthetic data types, you need to
-            // add corresponding radio buttons to the
-            // GUI and add statements here to test the
-            // new radio buttons.  Make additions here
-            // if you add new synthetic generator
-            // methods.
-            if (tones.isSelected) channels =  callGenerator(sg::tones,sampleRate, "Tones")
-            if (stereoPanning.isSelected)
-                channels = callGenerator(sg::stereoPanning,sampleRate,"Stereo Panning")
-            if (stereoPingpong.isSelected)
-                channels = callGenerator(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
-            if (fmSweep.isSelected) channels = callGenerator(sg::fmSweep,sampleRate,"FM Sweep")
-            if (decayPulse.isSelected) channels = callGenerator(sg::decayPulse,sampleRate,"Decay Pulse")
-            if (echoPulse.isSelected) channels = callGenerator(sg::echoPulse,sampleRate,"Echo Pulse")
-            if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
-            if (sineWave.isSelected) channels = callGenerator(sg::sineWave,sampleRate, "Sine Wave")
-
-            //Now it is OK for the user to listen
-            // to or file the synthetic audio data.
-            playOrFileBtn.isEnabled = true
+        showScopeBtn.addActionListener {
+            showScope()
         }//end addActionListener()
+
+
 
         //end actionPerformed
         playOrFileBtn.addActionListener {
@@ -186,9 +168,10 @@ class AudioSynth01
 
         //Add two buttons and a text field to a
         // physical group in the North of the GUI.
-        controlButtonPanel.add(generateBtn)
+        controlButtonPanel.add(showScopeBtn)
         controlButtonPanel.add(playOrFileBtn)
         controlButtonPanel.add(playLoop)
+        controlButtonPanel.add(toggleLoop)
         controlButtonPanel.add(elapsedTimeMeter)
 
         //Add radio buttons to a mutually exclusive
@@ -259,14 +242,63 @@ class AudioSynth01
         setSize(250, 275)
         isVisible = true
         bigEndian = true
+
+        tones.addActionListener {performGenerate()}
+        stereoPanning.addActionListener {performGenerate()}
+        stereoPingpong.addActionListener {performGenerate()}
+        fmSweep.addActionListener {performGenerate()}
+        decayPulse.addActionListener {performGenerate()}
+        echoPulse.addActionListener {performGenerate()}
+        waWaPulse.addActionListener {performGenerate()}
+        sineWave.addActionListener {performGenerate()}
+
     }//end constructor
     //-------------------------------------------/
 
+    fun performGenerate() {
+        //Don't allow Play during generation
+        playOrFileBtn.isEnabled = false
+        //Generate synthetic data
+        val sg = SynGen()
+        sg.getSyntheticData(audioData)
+
+        //Decide which synthetic data generator
+        // method to invoke based on which radio
+        // button the user selected in the Center of
+        // the GUI.  If you add more methods for
+        // other synthetic data types, you need to
+        // add corresponding radio buttons to the
+        // GUI and add statements here to test the
+        // new radio buttons.  Make additions here
+        // if you add new synthetic generator
+        // methods.
+        if (tones.isSelected) channels =  callGenerator(sg::tones,sampleRate, "Tones")
+        if (stereoPanning.isSelected)
+            channels = callGenerator(sg::stereoPanning,sampleRate,"Stereo Panning")
+        if (stereoPingpong.isSelected)
+            channels = callGenerator(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
+        if (fmSweep.isSelected) channels = callGenerator(sg::fmSweep,sampleRate,"FM Sweep")
+        if (decayPulse.isSelected) channels = callGenerator(sg::decayPulse,sampleRate,"Decay Pulse")
+        if (echoPulse.isSelected) channels = callGenerator(sg::echoPulse,sampleRate,"Echo Pulse")
+        if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
+        if (sineWave.isSelected) channels = callGenerator(sg::sineWave,sampleRate, "Sine Wave")
+
+        //Now it is OK for the user to listen
+        // to or file the synthetic audio data.
+        playOrFileBtn.isEnabled = true
+
+    }
 
     private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
 
         val channels = generatorFunction(sampleRate)
 
+
+
+        return channels;
+    }
+
+    private fun showScope() {
         val frameScope = JFrame("$title channel 1")
         val scope = Scope(audioData,16000.0,2,channels,1)
         frameScope.contentPane = scope
@@ -286,10 +318,6 @@ class AudioSynth01
             frameScope.isVisible = true
 
         }
-
-
-
-        return channels;
     }
 
 
@@ -325,28 +353,19 @@ class AudioSynth01
         sourceDataLine.open(audioFormat)
         sourceDataLine.start()
 
-        for (x in 0 until numloops) {
+        //while ( toggleLoop.isSelected()) {
 
-            //Get an input stream on the byte array
-            // containing the data
-            val byteArrayInputStream = ByteArrayInputStream(
-                audioData
-            )
+        //for (x in 0 until numloops) {
+        do {
 
-        //Get an audio input stream from the
-        // ByteArrayInputStream
-        val audioInputStream = AudioInputStream(
-            byteArrayInputStream,
-            audioFormat,
-            (audioData.size / audioFormat.frameSize).toLong()
-        )
+            //Get an input stream on the byte array containing the data
+            val byteArrayInputStream = ByteArrayInputStream(audioData)
 
+            //Get an audio input stream from the ByteArrayInputStream
+            val audioInputStream = AudioInputStream(byteArrayInputStream, audioFormat, (audioData.size / audioFormat.frameSize).toLong())
 
-
-
-
-        var cnt: Int
-        val playBuffer: ByteArray = ByteArray(16384)
+            var cnt: Int
+            val playBuffer: ByteArray = ByteArray(16384)
 
             //Transfer the audio data to the speakers
             while (true) {
@@ -372,7 +391,7 @@ class AudioSynth01
                 }//end if
             }//end while
 
-       }
+       } while ( toggleLoop.isSelected())
 
         //Block and wait for internal buffer of the
         // SourceDataLine to become empty.
@@ -405,7 +424,7 @@ class AudioSynth01
                 // playback
                 val startTime = Date().time
 
-                generateBtn.isEnabled = false
+                showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
                 playDirectly(1)                //Get and display the elapsed time for
                 // the previous playback.
@@ -413,7 +432,7 @@ class AudioSynth01
                 elapsedTimeMeter.text = "elapsed time: " + elapsedTime
 
                 //Re-enable buttons for another operation
-                generateBtn.isEnabled = true
+                showScopeBtn.isEnabled = true
                 playOrFileBtn.isEnabled = true
             } else {
 
@@ -421,7 +440,7 @@ class AudioSynth01
 
                 //Disable buttons until existing data
                 // is written to the file.
-                generateBtn.isEnabled = false
+                showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
 
                 //Get an input stream on the byte array
@@ -466,7 +485,7 @@ class AudioSynth01
                 //end catch
 
                 //Enable buttons for another operation
-                generateBtn.isEnabled = true
+                showScopeBtn.isEnabled = true
                 playOrFileBtn.isEnabled = true
             }//end else
         } catch (e: Exception) {
