@@ -85,6 +85,7 @@ class AudioSynth01
     // position of the GUI.
     private val generateBtn = JButton("Generate")
     private val playOrFileBtn = JButton("Play/File")
+    private val playLoop = JButton("Play Loop")
     private val elapsedTimeMeter = JLabel("0000")
 
     //Following radio buttons select a synthetic
@@ -183,10 +184,17 @@ class AudioSynth01
             playOrFileData()
         }//end addActionListener()
 
+        playLoop.addActionListener {
+            /* Play or file the data synthetic data */
+            playDirectly()
+        }//end addActionListener()
+
+
         //Add two buttons and a text field to a
         // physical group in the North of the GUI.
         controlButtonPanel.add(generateBtn)
         controlButtonPanel.add(playOrFileBtn)
+        controlButtonPanel.add(playLoop)
         controlButtonPanel.add(elapsedTimeMeter)
 
         //Add radio buttons to a mutually exclusive
@@ -258,7 +266,8 @@ class AudioSynth01
         isVisible = true
         bigEndian = true
     }//end constructor
-    //-------------------------------------------//
+    //-------------------------------------------/
+
 
     private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
 
@@ -287,6 +296,98 @@ class AudioSynth01
 
 
         return channels;
+    }
+
+
+    private fun playDirectly() {
+
+
+
+        //Get the required audio format
+        val signed = true
+        val sampleSizeInBits = 16
+        //The following are general instance variables
+        // used to create a SourceDataLine object.
+        val audioFormat = AudioFormat(
+            sampleRate,
+            sampleSizeInBits,
+            channels,
+            signed,
+            bigEndian
+        )
+
+        //Get info on the required data line
+        val dataLineInfo = DataLine.Info(
+            SourceDataLine::class.java,
+            audioFormat
+        )
+
+        //Get a SourceDataLine object
+        val sourceDataLine = AudioSystem.getLine(
+            dataLineInfo
+        ) as SourceDataLine
+
+        //Open and start the SourceDataLine
+        sourceDataLine.open(audioFormat)
+        sourceDataLine.start()
+
+        for (x in 0 until 4) {
+
+            //Get an input stream on the byte array
+            // containing the data
+            val byteArrayInputStream = ByteArrayInputStream(
+                audioData
+            )
+
+        //Get an audio input stream from the
+        // ByteArrayInputStream
+        val audioInputStream = AudioInputStream(
+            byteArrayInputStream,
+            audioFormat,
+            (audioData.size / audioFormat.frameSize).toLong()
+        )
+
+
+
+
+
+        var cnt: Int
+        val playBuffer: ByteArray = ByteArray(16384)
+
+            //Transfer the audio data to the speakers
+            while (true) {
+
+                cnt = audioInputStream.read(
+                    playBuffer, 0,
+                    playBuffer.size
+                )
+
+                if (cnt == -1)
+                    break
+
+                //Keep looping until the input read
+                // method returns -1 for empty stream.
+                if (cnt > 0) {
+                    //Write data to the internal buffer of
+                    // the data line where it will be
+                    // delivered to the speakers in real
+                    // time
+                    sourceDataLine.write(
+                        playBuffer, 0, cnt
+                    )
+                }//end if
+            }//end while
+
+       }
+
+        //Block and wait for internal buffer of the
+        // SourceDataLine to become empty.
+        sourceDataLine.drain()
+
+        //Finish with the SourceDataLine
+        sourceDataLine.stop()
+        sourceDataLine.close()
+
     }
 
     //This method plays or files the synthetic
