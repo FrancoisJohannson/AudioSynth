@@ -23,10 +23,10 @@ class Scope internal constructor(
         val byteBuffer = ByteBuffer.wrap(buf)
         shortBuffer = byteBuffer.asShortBuffer()
 
-        println("******************************")
-        for (cnt in 0 until 1000) {
-            println(shortBuffer!![cnt])
-        }
+//        println("******************************")
+//        for (cnt in 0 until 1000) {
+//            println(shortBuffer!![cnt])
+//        }
 
     }
 
@@ -50,21 +50,30 @@ class Scope internal constructor(
         val ybuf  = IntArray(this.width)
 
         val yFactor = halfheight/maxVol
+        //val yFactor = 0.1
         // val xFactor = 1600/*0.1 Seconds*//this.width.toDouble()
 
-        var xFactor = 2.0
+        var xFactor = 1.0
         if ( channels == 2)
-            xFactor = 4.0
+            xFactor = 2.0
 
         g.drawString("xFactor $xFactor", 20, 40)
         g.drawString("Frames "+buf.size/bytesPerFrame, 20, 60)
         g.drawString("Channels $channels", 20, 80)
+        g.drawString("yFactor $yFactor", 20, 100)
 
+        println("******************************")
+
+        var refactoredValue: Int
 
         for (x in 0 until this.width) {
 
+            println("Original Value: " + shortBuffer!![x])
+
             xbuf[x] = x
-            ybuf[x] = (buf[soundBufferXPos(x,xFactor)].toInt()*yFactor.toInt()).toInt()+halfheight
+            refactoredValue = ((shortBuffer!![x]*yFactor).toInt())+halfheight
+            println("Refactored Value: " + refactoredValue)
+            ybuf[x] = refactoredValue
 
         }
 

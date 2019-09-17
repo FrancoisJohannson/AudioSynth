@@ -265,7 +265,7 @@ class AudioSynth01
         val channels = generatorFunction(sampleRate);
 
         val frameScope = JFrame(title)
-        val scope = Scope(audioData,127.0,2,channels)
+        val scope = Scope(audioData,16000.0,2,channels)
         frameScope.contentPane = scope
         frameScope.pack()
         frameScope.minimumSize = frameScope.size
