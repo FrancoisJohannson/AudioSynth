@@ -186,7 +186,7 @@ class AudioSynth01
 
         playLoop.addActionListener {
             /* Play or file the data synthetic data */
-            playDirectly()
+            playDirectly(4)
         }//end addActionListener()
 
 
@@ -299,7 +299,7 @@ class AudioSynth01
     }
 
 
-    private fun playDirectly() {
+    private fun playDirectly(numloops: Int) {
 
 
 
@@ -331,7 +331,7 @@ class AudioSynth01
         sourceDataLine.open(audioFormat)
         sourceDataLine.start()
 
-        for (x in 0 until 4) {
+        for (x in 0 until numloops) {
 
             //Get an input stream on the byte array
             // containing the data
@@ -413,7 +413,7 @@ class AudioSynth01
 
                 generateBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
-                playDirectly()                //Get and display the elapsed time for
+                playDirectly(1)                //Get and display the elapsed time for
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
                 elapsedTimeMeter.text = "" + elapsedTime
