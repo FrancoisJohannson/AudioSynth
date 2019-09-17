@@ -16,10 +16,12 @@ class Scope internal constructor(
 ) : JPanel() {
 
     private var shortBuffer: ShortBuffer? = null
+
     private var visiblePartOfBuffer: Float = 0.01f
+    private var offset: Int = 0
 
     private val volume = JSlider(JSlider.VERTICAL, 1/*minimum*/, 10000/*maximum*/, 10/*value*/)
-    private val offset = JSlider(JSlider.HORIZONTAL, 1/*minimum*/, 10000/*maximum*/, 10/*value*/)
+    private val sliderOffset = JSlider(JSlider.HORIZONTAL, 1/*minimum*/, 10000/*maximum*/, 10/*value*/)
 
     private val view = View()
 
@@ -48,12 +50,12 @@ class Scope internal constructor(
         }
         this.add(volume, BorderLayout.EAST)
 
-        offset.toolTipText = "Offset"
-        offset.addChangeListener {
-            this.visiblePartOfBuffer = offset.value.toFloat()/10000.0f
+        sliderOffset.toolTipText = "Offset"
+        sliderOffset.addChangeListener {
+            this.offset = sliderOffset.value
             view.update()
         }
-        this.add(offset, BorderLayout.SOUTH)
+        this.add(sliderOffset, BorderLayout.SOUTH)
 
 
     }
@@ -109,14 +111,14 @@ class Scope internal constructor(
                 xbuf[x] = x
 
                 if ( channels == 1)
-                    refactoredValue = ((shortBuffer!![soundBufferXPos(x,xFactor)]*yFactor).toInt())+halfheight
+                    refactoredValue = ((shortBuffer!![(soundBufferXPos(x,xFactor))+offset]*yFactor).toInt())+halfheight
 
                 if ( channels == 2) {
                     if ( displayedChannel== 1)
-                        refactoredValue = ((shortBuffer!![soundBufferXPos(x, xFactor) * 2] * yFactor).toInt()) + halfheight
+                        refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+(offset*2)] * yFactor).toInt()) + halfheight
 
                     if ( displayedChannel== 2)
-                        refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+1] * yFactor).toInt()) + halfheight
+                        refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+1+(offset*2)] * yFactor).toInt()) + halfheight
 
                 }
 
