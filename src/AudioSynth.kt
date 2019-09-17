@@ -395,43 +395,7 @@ class AudioSynth01
     // in an array in memory.
     private fun playOrFileData() {
         try {
-            //Get an input stream on the byte array
-            // containing the data
-            val byteArrayInputStream = ByteArrayInputStream(
-                audioData
-            )
 
-            //Get the required audio format
-            val signed = true
-            val sampleSizeInBits = 16
-            //The following are general instance variables
-            // used to create a SourceDataLine object.
-            val audioFormat = AudioFormat(
-                sampleRate,
-                sampleSizeInBits,
-                channels,
-                signed,
-                bigEndian
-            )
-
-            //Get an audio input stream from the
-            // ByteArrayInputStream
-            val audioInputStream = AudioInputStream(
-                byteArrayInputStream,
-                audioFormat,
-                (audioData.size / audioFormat.frameSize).toLong()
-            )
-
-            //Get info on the required data line
-            val dataLineInfo = DataLine.Info(
-                SourceDataLine::class.java,
-                audioFormat
-            )
-
-            //Get a SourceDataLine object
-            val sourceDataLine = AudioSystem.getLine(
-                dataLineInfo
-            ) as SourceDataLine
             //Decide whether to play the synthetic
             // data immediately, or to write it into
             // an audio file, based on the user
@@ -449,8 +413,7 @@ class AudioSynth01
 
                 generateBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
-                ListenThread(sourceDataLine, audioFormat, audioInputStream).start()
-                //Get and display the elapsed time for
+                playDirectly()                //Get and display the elapsed time for
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
                 elapsedTimeMeter.text = "" + elapsedTime
@@ -459,10 +422,39 @@ class AudioSynth01
                 generateBtn.isEnabled = true
                 playOrFileBtn.isEnabled = true
             } else {
+
+
+
                 //Disable buttons until existing data
                 // is written to the file.
                 generateBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
+
+                //Get an input stream on the byte array
+                // containing the data
+                val byteArrayInputStream = ByteArrayInputStream(
+                    audioData
+                )
+
+                //Get the required audio format
+                val signed = true
+                val sampleSizeInBits = 16
+                //The following are general instance variables
+                // used to create a SourceDataLine object.
+                val audioFormat = AudioFormat(
+                    sampleRate,
+                    sampleSizeInBits,
+                    channels,
+                    signed,
+                    bigEndian
+                )
+                //Get an audio input stream from the
+                // ByteArrayInputStream
+                val audioInputStream = AudioInputStream(
+                    byteArrayInputStream,
+                    audioFormat,
+                    (audioData.size / audioFormat.frameSize).toLong()
+                )
 
                 //Write the data to an output file with
                 // the name provided by the text field
