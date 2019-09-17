@@ -7,7 +7,8 @@ class Scope internal constructor(
     private val buf: ByteArray,
     private val maxVol: Double,
     private val bytesPerFrame: Int,
-    private val channels: Int
+    private val channels: Int,
+    private val displayedChannel: Int
 
 ) : JPanel() {
 
@@ -74,9 +75,14 @@ class Scope internal constructor(
             if ( channels == 1)
                 refactoredValue = ((shortBuffer!![soundBufferXPos(x,xFactor)]*yFactor).toInt())+halfheight
 
-            if ( channels == 2)
-                refactoredValue = ((shortBuffer!![soundBufferXPos(x,xFactor)*2]*yFactor).toInt())+halfheight
+            if ( channels == 2) {
+                if ( displayedChannel== 1)
+                    refactoredValue = ((shortBuffer!![soundBufferXPos(x, xFactor) * 2] * yFactor).toInt()) + halfheight
 
+                if ( displayedChannel== 2)
+                    refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+1] * yFactor).toInt()) + halfheight
+
+            }
 
             println("Refactored Value: " + refactoredValue)
             ybuf[x] = refactoredValue
