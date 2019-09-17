@@ -13,7 +13,7 @@ class Scope internal constructor(
 ) : JPanel() {
 
     private var shortBuffer: ShortBuffer? = null
-
+    private var visiblePartOfBuffer: Float = 0.01f
 
     init {
         //        this.setBorder(BorderFactory.createTitledBorder(
@@ -28,6 +28,21 @@ class Scope internal constructor(
 //        for (cnt in 0 until 1000) {
 //            println(shortBuffer!![cnt])
 //        }
+
+
+
+        val volume = JSlider(
+            JSlider.HORIZONTAL,
+            1/*minimum*/,
+            10000/*maximum*/,
+            10/*value*/
+        )
+        volume.toolTipText = "Volume of beep"
+        volume.addChangeListener {
+            this.visiblePartOfBuffer = volume.value.toFloat()/10000.0f
+            update()
+        }
+        this.add(volume, BorderLayout.PAGE_END)
 
     }
 
@@ -51,7 +66,7 @@ class Scope internal constructor(
         val ybuf  = IntArray(this.width)
 
         val yFactor = halfheight/maxVol
-        var xFactor = 1600/*0.1 Seconds*//this.width.toDouble()
+        val xFactor = (shortBuffer!!.capacity()*this.visiblePartOfBuffer)/this.width.toDouble()
 
         //var xFactor = 1.0
         //if ( channels == 2)
@@ -64,7 +79,7 @@ class Scope internal constructor(
 
         println("******************************")
 
-        var refactoredValue: Int = 0
+        var refactoredValue = 0
 
         for (x in 0 until this.width) {
 
