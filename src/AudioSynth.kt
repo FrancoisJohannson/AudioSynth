@@ -77,7 +77,7 @@ class AudioSynth01
     private var channels: Int = 0
     // Allowable 1,2
 
-    private var playThread=Thread{ playDirectly() }
+    private var playThread =Thread{}
 
     private val bigEndian: Boolean
     //Allowable true,false
@@ -163,15 +163,15 @@ class AudioSynth01
 
         playLoop.addActionListener {
             /* Play or file the data synthetic data */
-            playThread=Thread{ playDirectly() }//.start()
+            playThread=Thread{ playDirectly() }
             playThread.start()
         }//end addActionListener()
 
 
-        toggleLoop.addActionListener{
-            if ( !toggleLoop.isSelected())
-                playThread.stop()
-        }
+//        toggleLoop.addActionListener{
+//            if ( !toggleLoop.isSelected)
+//                playThread.interrupt()
+//        }
 
         //Add two buttons and a text field to a
         // physical group in the North of the GUI.
@@ -361,45 +361,52 @@ class AudioSynth01
         sourceDataLine.open(audioFormat)
         sourceDataLine.start()
 
-        //while ( toggleLoop.isSelected()) {
 
-        //for (x in 0 until numloops) {
-        do {
+            do {
 
-            //Get an input stream on the byte array containing the data
-            val byteArrayInputStream = ByteArrayInputStream(audioData)
+                //Get an input stream on the byte array containing the data
+                val byteArrayInputStream = ByteArrayInputStream(audioData)
 
-            //Get an audio input stream from the ByteArrayInputStream
-            val audioInputStream = AudioInputStream(byteArrayInputStream, audioFormat, (audioData.size / audioFormat.frameSize).toLong())
-
-            var cnt: Int
-            val playBuffer = ByteArray(16384)
-
-            //Transfer the audio data to the speakers
-            while (true) {
-
-                cnt = audioInputStream.read(
-                    playBuffer, 0,
-                    playBuffer.size
+                //Get an audio input stream from the ByteArrayInputStream
+                val audioInputStream = AudioInputStream(
+                    byteArrayInputStream,
+                    audioFormat,
+                    (audioData.size / audioFormat.frameSize).toLong()
                 )
 
-                if (cnt == -1)
+                var cnt: Int
+                val playBuffer = ByteArray(16384)
+
+                //Transfer the audio data to the speakers
+                while (true) {
+
+                    cnt = audioInputStream.read(
+                        playBuffer, 0,
+                        playBuffer.size
+                    )
+
+                    if (cnt == -1)
+                        break
+
+                    //Keep looping until the input read
+                    // method returns -1 for empty stream.
+                    if (cnt > 0) {
+                        //Write data to the internal buffer of
+                        // the data line where it will be
+                        // delivered to the speakers in real
+                        // time
+                        sourceDataLine.write(
+                            playBuffer, 0, cnt
+                        )
+                    }//end if
+                }//end while
+
+                if ( !this.toggleLoop.isSelected )
                     break
 
-                //Keep looping until the input read
-                // method returns -1 for empty stream.
-                if (cnt > 0) {
-                    //Write data to the internal buffer of
-                    // the data line where it will be
-                    // delivered to the speakers in real
-                    // time
-                    sourceDataLine.write(
-                        playBuffer, 0, cnt
-                    )
-                }//end if
-            }//end while
 
-       } while ( toggleLoop.isSelected())
+            } while (true)
+
 
         //Block and wait for internal buffer of the
         // SourceDataLine to become empty.
