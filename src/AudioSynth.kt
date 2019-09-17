@@ -55,20 +55,18 @@ Tested using SDK 1.4.0 under Win2000
 
 import javax.swing.*
 import java.awt.*
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import javax.sound.sampled.*
 import java.io.*
 import java.util.Date
 import kotlin.system.exitProcess
 import javax.swing.JCheckBox
 
-
-
-
-
 class AudioSynth01
 //-------------------------------------------//
 
-    : JFrame() {
+    : JFrame(), KeyListener  {
     //Allowable 8000,11025,16000,22050,44100
 
     private val sampleRate = 16000.0f
@@ -259,8 +257,26 @@ class AudioSynth01
         waWaPulse.addActionListener {performGenerate()}
         sineWave.addActionListener {performGenerate()}
 
+        addKeyListener(this)
+        setFocusable(true)
+        focusTraversalKeysEnabled = false
+
     }//end constructor
     //-------------------------------------------/
+
+    override fun keyTyped(e: KeyEvent) {
+        println("keyTyped")
+    }
+
+    override fun keyPressed(e: KeyEvent) {
+       println("keyPressed")
+    }
+
+    override fun keyReleased(e: KeyEvent) {
+
+        println("keyReleased")
+    }
+
 
     fun performGenerate() {
         //Don't allow Play during generation
