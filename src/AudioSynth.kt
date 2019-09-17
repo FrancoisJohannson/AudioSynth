@@ -155,16 +155,16 @@ class AudioSynth01
             // new radio buttons.  Make additions here
             // if you add new synthetic generator
             // methods.
-            if (tones.isSelected) channels =  effect(sg::tones,sampleRate, "Tones")
+            if (tones.isSelected) channels =  callGenerator(sg::tones,sampleRate, "Tones")
             if (stereoPanning.isSelected)
-                channels = effect(sg::stereoPanning,sampleRate,"Stereo Panning")
+                channels = callGenerator(sg::stereoPanning,sampleRate,"Stereo Panning")
             if (stereoPingpong.isSelected)
-                channels = effect(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
-            if (fmSweep.isSelected) channels = effect(sg::fmSweep,sampleRate,"FM Sweep")
-            if (decayPulse.isSelected) channels = effect(sg::decayPulse,sampleRate,"Decay Pulse")
-            if (echoPulse.isSelected) channels = effect(sg::echoPulse,sampleRate,"Echo Pulse")
-            if (waWaPulse.isSelected) channels = effect(sg::waWaPulse,sampleRate,"Wawa Pulse")
-            if (sineWave.isSelected) channels = effect(sg::sineWave,sampleRate, "Sine Wave")
+                channels = callGenerator(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
+            if (fmSweep.isSelected) channels = callGenerator(sg::fmSweep,sampleRate,"FM Sweep")
+            if (decayPulse.isSelected) channels = callGenerator(sg::decayPulse,sampleRate,"Decay Pulse")
+            if (echoPulse.isSelected) channels = callGenerator(sg::echoPulse,sampleRate,"Echo Pulse")
+            if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
+            if (sineWave.isSelected) channels = callGenerator(sg::sineWave,sampleRate, "Sine Wave")
 
 
 
@@ -260,9 +260,9 @@ class AudioSynth01
     }//end constructor
     //-------------------------------------------//
 
-    private fun effect(f: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
+    private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
 
-        val channels = f(sampleRate);
+        val channels = generatorFunction(sampleRate);
 
         val frameScope = JFrame(title)
         val scope = Scope(audioData,127.0,2,channels)

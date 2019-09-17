@@ -1,5 +1,7 @@
 import javax.swing.*
 import java.awt.*
+import java.nio.ByteBuffer
+import java.nio.ShortBuffer
 
 class Scope internal constructor(
     private val buf: ByteArray,
@@ -9,12 +11,23 @@ class Scope internal constructor(
 
 ) : JPanel() {
 
+    private var shortBuffer: ShortBuffer? = null
+
 
     init {
         //        this.setBorder(BorderFactory.createTitledBorder(
         //                BorderFactory.createEtchedBorder(), "Oscilloscope"));
         this.background = Color.ORANGE
         this.preferredSize = Dimension(400, 400)
+
+        val byteBuffer = ByteBuffer.wrap(buf)
+        shortBuffer = byteBuffer.asShortBuffer()
+
+        println("******************************")
+        for (cnt in 0 until 1000) {
+            println(shortBuffer!![cnt])
+        }
+
     }
 
 
