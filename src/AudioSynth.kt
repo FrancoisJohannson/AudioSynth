@@ -262,7 +262,7 @@ class AudioSynth01
 
     private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
 
-        val channels = generatorFunction(sampleRate);
+        val channels = generatorFunction(sampleRate)
 
         val frameScope = JFrame("$title channel 1")
         val scope = Scope(audioData,16000.0,2,channels,1)

@@ -2,6 +2,9 @@ import javax.swing.*
 import java.awt.*
 import java.nio.ByteBuffer
 import java.nio.ShortBuffer
+import java.awt.BorderLayout
+
+
 
 class Scope internal constructor(
     private val buf: ByteArray,
@@ -15,110 +18,134 @@ class Scope internal constructor(
     private var shortBuffer: ShortBuffer? = null
     private var visiblePartOfBuffer: Float = 0.01f
 
+    private val volume = JSlider(JSlider.VERTICAL, 1/*minimum*/, 10000/*maximum*/, 10/*value*/)
+    private val offset = JSlider(JSlider.HORIZONTAL, 1/*minimum*/, 10000/*maximum*/, 10/*value*/)
+
+    private val view = View()
+
     init {
         //        this.setBorder(BorderFactory.createTitledBorder(
         //                BorderFactory.createEtchedBorder(), "Oscilloscope"));
-        this.background = Color.ORANGE
-        this.preferredSize = Dimension(400, 400)
+
+
+        this.layout = BorderLayout()
 
         val byteBuffer = ByteBuffer.wrap(buf)
         shortBuffer = byteBuffer.asShortBuffer()
 
-//        println("******************************")
-//        for (cnt in 0 until 1000) {
-//            println(shortBuffer!![cnt])
-//        }
+
+
+        view.background = Color.ORANGE
+        view.preferredSize = Dimension(400, 400)
+        this.add(view, BorderLayout.WEST)
 
 
 
-        val volume = JSlider(
-            JSlider.HORIZONTAL,
-            1/*minimum*/,
-            10000/*maximum*/,
-            10/*value*/
-        )
         volume.toolTipText = "Volume of beep"
         volume.addChangeListener {
             this.visiblePartOfBuffer = volume.value.toFloat()/10000.0f
-            update()
+            view.update()
         }
-        this.add(volume, BorderLayout.PAGE_END)
+        this.add(volume, BorderLayout.EAST)
 
-    }
+        offset.toolTipText = "Offset"
+        offset.addChangeListener {
+            this.visiblePartOfBuffer = offset.value.toFloat()/10000.0f
+            view.update()
+        }
+        this.add(offset, BorderLayout.SOUTH)
 
-
-    fun update() {
-
-        repaint()
 
     }
 
     public override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
 
-        val halfheight = this.height / 2
+        view.preferredSize = Dimension(this.width-(volume.width*2), this.height)
+
+    }
 
 
-        g.drawString("0", 0, halfheight)
-        g.drawString("Buffer-size "+shortBuffer!!.capacity(), 20, 20)
+    inner class View : JPanel() {
 
-        val xbuf  = IntArray(this.width)
-        val ybuf  = IntArray(this.width)
 
-        val yFactor = halfheight/maxVol
-        val xFactor = (shortBuffer!!.capacity()*this.visiblePartOfBuffer)/this.width.toDouble()
+        fun update() {
 
-        //var xFactor = 1.0
-        //if ( channels == 2)
-        //     xFactor = 2.0
+            repaint()
 
-        g.drawString("xFactor $xFactor", 20, 40)
-        g.drawString("Frames "+shortBuffer!!.capacity()/channels, 20, 60)
-        g.drawString("Channels $channels", 20, 80)
-        g.drawString("yFactor $yFactor", 20, 100)
+        }
 
-        println("******************************")
+        public override fun paintComponent(g: Graphics) {
+            super.paintComponent(g)
 
-        var refactoredValue = 0
+            val halfheight = this.height / 2
 
-        for (x in 0 until this.width) {
 
-            println("Original Value: " + shortBuffer!![x])
+            g.drawString("0", 0, halfheight)
+            g.drawString("Buffer-size "+shortBuffer!!.capacity(), 20, 20)
 
-            xbuf[x] = x
+            val xbuf  = IntArray(this.width)
+            val ybuf  = IntArray(this.width)
 
-            if ( channels == 1)
-                refactoredValue = ((shortBuffer!![soundBufferXPos(x,xFactor)]*yFactor).toInt())+halfheight
+            val yFactor = halfheight/maxVol
+            val xFactor = (shortBuffer!!.capacity()*visiblePartOfBuffer)/this.width.toDouble()
 
-            if ( channels == 2) {
-                if ( displayedChannel== 1)
-                    refactoredValue = ((shortBuffer!![soundBufferXPos(x, xFactor) * 2] * yFactor).toInt()) + halfheight
+            //var xFactor = 1.0
+            //if ( channels == 2)
+            //     xFactor = 2.0
 
-                if ( displayedChannel== 2)
-                    refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+1] * yFactor).toInt()) + halfheight
+            g.drawString("xFactor $xFactor", 20, 40)
+            g.drawString("Frames "+shortBuffer!!.capacity()/channels, 20, 60)
+            g.drawString("Channels $channels", 20, 80)
+            g.drawString("yFactor $yFactor", 20, 100)
+
+            println("******************************")
+
+            var refactoredValue = 0
+
+            for (x in 0 until this.width) {
+
+                println("Original Value: " + shortBuffer!![x])
+
+                xbuf[x] = x
+
+                if ( channels == 1)
+                    refactoredValue = ((shortBuffer!![soundBufferXPos(x,xFactor)]*yFactor).toInt())+halfheight
+
+                if ( channels == 2) {
+                    if ( displayedChannel== 1)
+                        refactoredValue = ((shortBuffer!![soundBufferXPos(x, xFactor) * 2] * yFactor).toInt()) + halfheight
+
+                    if ( displayedChannel== 2)
+                        refactoredValue = ((shortBuffer!![(soundBufferXPos(x, xFactor) * 2)+1] * yFactor).toInt()) + halfheight
+
+                }
+
+                println("Refactored Value: " + refactoredValue)
+                ybuf[x] = refactoredValue
 
             }
 
-            println("Refactored Value: " + refactoredValue)
-            ybuf[x] = refactoredValue
+            g.drawPolyline(xbuf,ybuf,this.width)
+            g.drawLine(0, halfheight, this.width, halfheight)
 
         }
 
-        g.drawPolyline(xbuf,ybuf,this.width)
-        g.drawLine(0, halfheight, this.width, halfheight)
+        private fun soundBufferXPos(x:Int,xFactor:Double) : Int {
+            var soundBufferPos = (x*(xFactor)).toInt()
+            if ( soundBufferPos>=shortBuffer!!.capacity() ) {
+                soundBufferPos %= shortBuffer!!.capacity()//
+            }
+
+            return soundBufferPos
+        }
 
     }
 
 
 
-    private fun soundBufferXPos(x:Int,xFactor:Double) : Int {
-        var soundBufferPos = (x*(xFactor)).toInt()
-        if ( soundBufferPos>=shortBuffer!!.capacity() ) {
-            soundBufferPos %= shortBuffer!!.capacity()//
-        }
 
-        return soundBufferPos
-    }
+
+
 
 
 
