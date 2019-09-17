@@ -4,7 +4,8 @@ import java.awt.*
 class Scope internal constructor(
     private val buf: ByteArray,
     private val maxVol: Double,
-    private val bytesPerFrame: Int
+    private val bytesPerFrame: Int,
+    private val channels: Int
 
 ) : JPanel() {
 
@@ -36,15 +37,21 @@ class Scope internal constructor(
         val ybuf  = IntArray(this.width)
 
         val yFactor = halfheight/maxVol
-        val xFactor = 1600/*0.1 Seconds*//this.width.toDouble()
+        // val xFactor = 1600/*0.1 Seconds*//this.width.toDouble()
 
-        g.drawString("xFactor "+xFactor, 20, 40)
+        var xFactor = 2.0
+        if ( channels == 2)
+            xFactor = 4.0
+
+        g.drawString("xFactor $xFactor", 20, 40)
         g.drawString("Frames "+buf.size/bytesPerFrame, 20, 60)
+        g.drawString("Channels $channels", 20, 80)
+
 
         for (x in 0 until this.width) {
 
             xbuf[x] = x
-            ybuf[x] = (buf[soundBufferXPos(x,xFactor)].toInt()*yFactor).toInt()+halfheight
+            ybuf[x] = (buf[soundBufferXPos(x,xFactor)].toInt()*yFactor.toInt()).toInt()+halfheight
 
         }
 

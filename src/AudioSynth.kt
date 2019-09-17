@@ -155,26 +155,19 @@ class AudioSynth01
             // new radio buttons.  Make additions here
             // if you add new synthetic generator
             // methods.
-            if (tones.isSelected) channels = sg.tones(sampleRate)
+            if (tones.isSelected) channels =  effect(sg::tones,sampleRate, "Tones")
             if (stereoPanning.isSelected)
-                channels = sg.stereoPanning(sampleRate)
+                channels = effect(sg::stereoPanning,sampleRate,"Stereo Panning")
             if (stereoPingpong.isSelected)
-                channels = sg.stereoPingpong(sampleRate)
-            if (fmSweep.isSelected) channels = sg.fmSweep(sampleRate)
-            if (decayPulse.isSelected) channels = sg.decayPulse(sampleRate)
-            if (echoPulse.isSelected) channels = sg.echoPulse(sampleRate)
-            if (waWaPulse.isSelected) channels = sg.waWaPulse(sampleRate)
-            if (sineWave.isSelected) channels = sg.sineWave(sampleRate)
+                channels = effect(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
+            if (fmSweep.isSelected) channels = effect(sg::fmSweep,sampleRate,"FM Sweep")
+            if (decayPulse.isSelected) channels = effect(sg::decayPulse,sampleRate,"Decay Pulse")
+            if (echoPulse.isSelected) channels = effect(sg::echoPulse,sampleRate,"Echo Pulse")
+            if (waWaPulse.isSelected) channels = effect(sg::waWaPulse,sampleRate,"Wawa Pulse")
+            if (sineWave.isSelected) channels = effect(sg::sineWave,sampleRate, "Sine Wave")
 
 
 
-            val frameScope = JFrame("Scope")
-            val scope = Scope(audioData,127.0,2)
-            frameScope.contentPane = scope
-            frameScope.pack()
-            frameScope.minimumSize = frameScope.size
-            frameScope.isLocationByPlatform = true
-            frameScope.isVisible = true
 
 
 
@@ -266,6 +259,22 @@ class AudioSynth01
         bigEndian = true
     }//end constructor
     //-------------------------------------------//
+
+    private fun effect(f: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
+
+        val channels = f(sampleRate);
+
+        val frameScope = JFrame(title)
+        val scope = Scope(audioData,127.0,2,channels)
+        frameScope.contentPane = scope
+        frameScope.pack()
+        frameScope.minimumSize = frameScope.size
+        frameScope.isLocationByPlatform = true
+        frameScope.isVisible = true
+
+
+        return channels;
+    }
 
     //This method plays or files the synthetic
     // audio data that has been generated and saved
