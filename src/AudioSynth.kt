@@ -167,12 +167,6 @@ class AudioSynth01
             if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
             if (sineWave.isSelected) channels = callGenerator(sg::sineWave,sampleRate, "Sine Wave")
 
-
-
-
-
-
-
             //Now it is OK for the user to listen
             // to or file the synthetic audio data.
             playOrFileBtn.isEnabled = true
@@ -416,7 +410,7 @@ class AudioSynth01
                 playDirectly(1)                //Get and display the elapsed time for
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
-                elapsedTimeMeter.text = "" + elapsedTime
+                elapsedTimeMeter.text = "elapsed time: " + elapsedTime
 
                 //Re-enable buttons for another operation
                 generateBtn.isEnabled = true
