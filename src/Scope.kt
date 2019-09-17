@@ -36,7 +36,7 @@ class Scope internal constructor(
         val ybuf  = IntArray(this.width)
 
         val yFactor = halfheight/maxVol
-        val xFactor = 4410/*0.1 Seconds*//this.width.toDouble()
+        val xFactor = 1600/*0.1 Seconds*//this.width.toDouble()
 
         g.drawString("xFactor "+xFactor, 20, 40)
         g.drawString("Frames "+buf.size/bytesPerFrame, 20, 60)

@@ -166,7 +166,18 @@ class AudioSynth01
             if (waWaPulse.isSelected) channels = sg.waWaPulse(sampleRate)
             if (sineWave.isSelected) channels = sg.sineWave(sampleRate)
 
-            Scope(audioData,16000.0,4)
+
+
+            val frameScope = JFrame("Scope")
+            val scope = Scope(audioData,127.0,2)
+            frameScope.contentPane = scope
+            frameScope.pack()
+            frameScope.minimumSize = frameScope.size
+            frameScope.isLocationByPlatform = true
+            frameScope.isVisible = true
+
+
+
 
             //Now it is OK for the user to listen
             // to or file the synthetic audio data.
