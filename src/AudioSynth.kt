@@ -86,7 +86,6 @@ class AudioSynth01
     // 16-bit samples
     private val audioData: ByteArray
 
-    private var bLoopContinue = false
 
     //Following components appear in the North
     // position of the GUI.
@@ -147,6 +146,7 @@ class AudioSynth01
         channels = 1
         audioData = ByteArray(16000 * 4)
 
+        val globalVoice = Voice('ü',SynGen(),false,audioData)
 
         //end actionPerformed
         showScopeBtn.addActionListener {
@@ -162,17 +162,15 @@ class AudioSynth01
         }//end addActionListener()
 
         playLoop.addActionListener {
-            bLoopContinue = true
             /* Play or file the data synthetic data */
-            playThread=Thread{ playDirectly() }
+            playThread=Thread{ globalVoice.playDirectly(sampleRate,channels,true) }
             playThread.start()
 
         }//end addActionListener()
 
 
         toggleLoop.addActionListener{
-            if ( !toggleLoop.isSelected)
-                bLoopContinue = false
+            globalVoice.bLoopContinue = toggleLoop.isSelected
         }
 
         //Add two buttons and a text field to a
@@ -246,7 +244,7 @@ class AudioSynth01
         // buttons in the center, you may need to
         // modify the call to setSize to increase
         // the vertical component of the GUI size.
-        title = "Copyright 2003, R.G.Baldwin"
+        title = "Copyright 2019, Francois Johannson"
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
         setSize(250, 275)
         isVisible = true
@@ -279,16 +277,14 @@ class AudioSynth01
         println("keyTyped: "+ e.keyChar)
 
 
-        voicesActive.add(Voice(e.keyChar))
-
         when(e?.keyChar) {
-            'y' -> playNote(261.6256f)  // C4
-            'x' -> playNote(293.6648f)  // D4
-            'c' -> playNote(329.6276f)  // E4
-            'v' -> playNote(349.2282f)  // F4
-            'b' -> playNote(391.9954f)  // G4
-            'n' -> playNote(440.0000f)  // A4
-            'm' -> playNote(493.8833f)  // B4
+            'y' -> playNote(e.keyChar,261.6256f)  // C4
+            'x' -> playNote(e.keyChar,293.6648f)  // D4
+            'c' -> playNote(e.keyChar,329.6276f)  // E4
+            'v' -> playNote(e.keyChar,349.2282f)  // F4
+            'b' -> playNote(e.keyChar,391.9954f)  // G4
+            'n' -> playNote(e.keyChar,440.0000f)  // A4
+            'm' -> playNote(e.keyChar,493.8833f)  // B4
         }
 
 
@@ -303,20 +299,24 @@ class AudioSynth01
 
         println("keyReleased: " + e.keyChar)
 
+        val voice = voicesActive.filter{v -> v.key == e.keyChar}.single()
+        voice.bLoopContinue = false
         voicesActive.removeIf{v -> v.key == e.keyChar}
 
-        if ( voicesActive.size == 0 )
-            bLoopContinue = false
     }
 
 
-    private fun playNote(freq:Float) {
+    private fun playNote(key:Char, freq:Float) {
         //if ( !bLoopContinue) {
+
             val sg = SynGen()
+            val voice = Voice(key,sg,true,audioData)
+            voicesActive.add(voice)
+
+
             sg.getSyntheticData(audioData)
             channels = selectedEffect(sg).invoke(sampleRate,freq)
-            bLoopContinue = true
-            playThread = Thread { playDirectly() }
+            playThread = Thread { voice.playDirectly(sampleRate,channels,bigEndian) }
             playThread.start()
         //}
     }
@@ -389,89 +389,6 @@ class AudioSynth01
 
 
 
-    private fun playDirectly() {
-
-
-        //Get the required audio format
-        val signed = true
-        val sampleSizeInBits = 16
-        //The following are general instance variables
-        // used to create a SourceDataLine object.
-        val audioFormat = AudioFormat(
-            sampleRate,
-            sampleSizeInBits,
-            channels,
-            signed,
-            bigEndian
-        )
-
-        //Get info on the required data line
-        val dataLineInfo = DataLine.Info(
-            SourceDataLine::class.java,
-            audioFormat
-        )
-
-        //Get a SourceDataLine object
-        val sourceDataLine = AudioSystem.getLine(
-            dataLineInfo
-        ) as SourceDataLine
-
-        //Open and start the SourceDataLine
-        sourceDataLine.open(audioFormat)
-        sourceDataLine.start()
-
-
-            do {
-
-                //Get an input stream on the byte array containing the data
-                val byteArrayInputStream = ByteArrayInputStream(audioData)
-
-                //Get an audio input stream from the ByteArrayInputStream
-                val audioInputStream = AudioInputStream(
-                    byteArrayInputStream,
-                    audioFormat,
-                    (audioData.size / audioFormat.frameSize).toLong()
-                )
-
-                var cnt: Int
-                val playBuffer = ByteArray(2048)
-
-                //Transfer the audio data to the speakers
-                while (bLoopContinue) {
-
-                    cnt = audioInputStream.read(
-                        playBuffer, 0,
-                        playBuffer.size
-                    )
-
-                    if (cnt == -1)
-                        break
-
-                    //Keep looping until the input read
-                    // method returns -1 for empty stream.
-                    if ((cnt > 0) && bLoopContinue) {
-                        //Write data to the internal buffer of
-                        // the data line where it will be
-                        // delivered to the speakers in real
-                        // time
-                        sourceDataLine.write(
-                            playBuffer, 0, cnt
-                        )
-                    }//end if
-                }//end while
-
-            } while (bLoopContinue)
-
-
-        //Block and wait for internal buffer of the
-        // SourceDataLine to become empty.
-        sourceDataLine.drain()
-
-        //Finish with the SourceDataLine
-        sourceDataLine.stop()
-        sourceDataLine.close()
-
-    }
 
     //This method plays or files the synthetic
     // audio data that has been generated and saved
@@ -497,7 +414,8 @@ class AudioSynth01
                 showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
 
-                playDirectly()                //Get and display the elapsed time for
+                val voice = Voice('ü',SynGen(),false,audioData)
+                voice.playDirectly(sampleRate,channels,bigEndian)                //Get and display the elapsed time for
 
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
