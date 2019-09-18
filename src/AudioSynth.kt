@@ -71,6 +71,7 @@ class AudioSynth01
 
     private val sampleRate = 16000.0f
 
+    private var keysActive : MutableList<Char> = mutableListOf()
 
     private var channels: Int = 0
     // Allowable 1,2
@@ -271,7 +272,14 @@ class AudioSynth01
     //-------------------------------------------/
 
     override fun keyTyped(e: KeyEvent) {
+
+        if ( keysActive.contains(e.keyChar))
+            return
+
         println("keyTyped: "+ e.keyChar)
+
+
+        keysActive.add(e.keyChar)
 
         when(e?.keyChar) {
             'y' -> playNote(261.6256f)  // C4
@@ -288,25 +296,29 @@ class AudioSynth01
     }
 
     override fun keyPressed(e: KeyEvent) {
-       println("keyPressed")
+       //println("keyPressed")
     }
 
     override fun keyReleased(e: KeyEvent) {
 
-        println("keyReleased")
-        bLoopContinue = false
+        println("keyReleased: " + e.keyChar)
+
+        keysActive.remove(e.keyChar)
+
+        if ( keysActive.size == 0 )
+            bLoopContinue = false
     }
 
 
     private fun playNote(freq:Float) {
-        if ( !bLoopContinue) {
+        //if ( !bLoopContinue) {
             val sg = SynGen()
             sg.getSyntheticData(audioData)
             channels = selectedEffect(sg).invoke(sampleRate,freq)
             bLoopContinue = true
             playThread = Thread { playDirectly() }
             playThread.start()
-        }
+        //}
     }
 
     private fun performGenerate() : SynGen {
