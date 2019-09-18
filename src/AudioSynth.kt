@@ -146,7 +146,7 @@ class AudioSynth01
         channels = 1
         audioData = ByteArray(16000 * 4)
 
-        val globalVoice = Voice('ü',SynGen(),false,audioData)
+        val globalVoice = Voice('ü',/*SynGen(),*/false,audioData)
 
         //end actionPerformed
         showScopeBtn.addActionListener {
@@ -310,7 +310,7 @@ class AudioSynth01
         //if ( !bLoopContinue) {
 
             val sg = SynGen()
-            val voice = Voice(key,sg,true,audioData)
+            val voice = Voice(key,/*sg,*/true,audioData)
             voicesActive.add(voice)
 
 
@@ -414,7 +414,7 @@ class AudioSynth01
                 showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
 
-                val voice = Voice('ü',SynGen(),false,audioData)
+                val voice = Voice('ü',/*SynGen(),*/false,audioData)
                 voice.playDirectly(sampleRate,channels,bigEndian)                //Get and display the elapsed time for
 
                 // the previous playback.

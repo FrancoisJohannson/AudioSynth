@@ -4,7 +4,7 @@ import javax.sound.sampled.*
 class Voice internal constructor(
 
     val key: Char,
-    val sg: SynGen,
+    //val sg: SynGen,
     var bLoopContinue:Boolean,
     val audioData: ByteArray
     )
