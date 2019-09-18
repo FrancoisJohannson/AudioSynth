@@ -476,6 +476,7 @@ class AudioSynth01
                 }
                 //end catch
 
+
                 //Enable buttons for another operation
                 showScopeBtn.isEnabled = true
                 playOrFileBtn.isEnabled = true
