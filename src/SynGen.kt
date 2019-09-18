@@ -56,7 +56,7 @@ internal class SynGen {
     }//end method tones
     //-------------------------------------------//
 
-    fun sineWave(sampleRate: Float): Int {
+    fun sineWave(sampleRate: Float, frequency:Float): Int {
         //var sampleRate = sampleRate
         //Each channel requires two 8-bit bytes per
         // 16-bit sample.
@@ -71,7 +71,7 @@ internal class SynGen {
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
-            val freq = 440.0//arbitrary frequency
+            val freq = frequency//arbitrary frequency
             val sinValue = sin(2.0 * Math.PI * freq * time)
 
             if ( cnt < 200)

@@ -272,7 +272,20 @@ class AudioSynth01
 
     override fun keyTyped(e: KeyEvent) {
         println("keyTyped: "+ e.keyChar)
+        var frequency: Float = 440.0f
+
+        when(e?.keyChar) {
+            'a' -> frequency = 220.0f
+            's' -> frequency = 440.0f
+            'd' -> frequency = 660.0f
+            'f' -> frequency = 880.0f
+        }
+
+
         if ( !bLoopContinue) {
+            val sg = SynGen()
+            sg.getSyntheticData(audioData)
+            sg.sineWave(sampleRate,frequency)
             bLoopContinue = true
             playThread = Thread { playDirectly() }
             playThread.start()
@@ -290,7 +303,7 @@ class AudioSynth01
     }
 
 
-    fun performGenerate() {
+    private fun performGenerate() : SynGen {
         //Don't allow Play during generation
         playOrFileBtn.isEnabled = false
         //Generate synthetic data
@@ -316,7 +329,7 @@ class AudioSynth01
         if (decayPulse.isSelected) channels = callGenerator(sg::decayPulse,sampleRate,"Decay Pulse")
         if (echoPulse.isSelected) channels = callGenerator(sg::echoPulse,sampleRate,"Echo Pulse")
         if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
-        if (sineWave.isSelected) channels = callGenerator(sg::sineWave,sampleRate, "Sine Wave")
+        if (sineWave.isSelected) channels = sg.sineWave(sampleRate,440.0f)
 
         //Now it is OK for the user to listen
         // to or file the synthetic audio data.
@@ -324,6 +337,7 @@ class AudioSynth01
 
         this.requestFocus()
 
+        return sg
     }
 
     private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
