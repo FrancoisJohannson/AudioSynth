@@ -59,27 +59,55 @@ internal class SynGen {
         //var sampleRate = sampleRate
         //Each channel requires two 8-bit bytes per
         // 16-bit sample.
-        val bytesPerSamp = 2
-        //sampleRate = 16000.0f
-        // Allowable 8000,11025,16000,22050,44100
-        val sampLength = byteLength / bytesPerSamp
 
-//        println("=======================================")
-//        println("sampLength:" + sampLength)
-//        println("=======================================")
+        val bytesPerSamp = 2
+        val sampLength = byteLength / bytesPerSamp
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
             val sinValue = sin(2.0 * Math.PI * frequency * time)
 
-//            if ( cnt < 200)
-//                println(sinValue)
-
             shortBuffer!!.put((16000 * sinValue).toShort())
         }//end for loop
 
         return 1
-    }//end method mySound
+    }//end method sineWave
+    //-------------------------------------------//
+
+    fun superSaw(sampleRate: Float, frequency:Float): Int {
+        //var sampleRate = sampleRate
+        //Each channel requires two 8-bit bytes per
+        // 16-bit sample.
+
+        val bytesPerSamp = 2
+        val sampLength = byteLength / bytesPerSamp
+
+        val samplesPerWave: Float = (sampleRate / frequency)
+        val samplesPerWave2: Float = (sampleRate / frequency*2)
+
+        var cntSample: Int = 0
+        var cntSample2: Int = 0
+        for (cnt in 0 until sampLength) {
+
+            if ( (cnt%samplesPerWave.toInt()) == 0 ) {
+                cntSample = 0
+            }
+            if ( (cnt%samplesPerWave2.toInt()) == 0 ) {
+                cntSample2 = 0
+            }
+
+            val value =
+
+                (-1 + ((cntSample.toFloat() / samplesPerWave)*2) +
+                        -1 + (((cntSample2.toFloat()) / samplesPerWave2)*2)) / 2
+
+            shortBuffer!!.put((16000 * value).toShort())
+            cntSample++
+            cntSample2++
+        }
+
+        return 1
+    }//end method superSaw
     //-------------------------------------------//
 
     //This method generates a stereo speaker sweep,
@@ -165,7 +193,7 @@ internal class SynGen {
         val bytesPerSamp = 2//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
-        val highFreq = frequency+1000.0
+        val highFreq = frequency+(frequency*1.3)
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()

@@ -107,15 +107,16 @@ class AudioSynth01
     private val echoPulse = JRadioButton("Echo Pulse")
     private val waWaPulse = JRadioButton("WaWa Pulse")
     private val sineWave = JRadioButton("sineWave")
+    private val superSaw = JRadioButton("superSaw")
 
-    private val radioButtons :List<JRadioButton> = listOf( tones, stereoPanning, stereoPingpong, fmSweep, decayPulse, echoPulse, waWaPulse, sineWave  )
+    private val radioButtons :List<JRadioButton> = listOf( tones, stereoPanning, stereoPingpong, fmSweep, decayPulse, echoPulse, waWaPulse, sineWave, superSaw  )
 
 
     //Following components appear in the South
     // position of the GUI.
     private val listen = JRadioButton("Listen", true)
     private val fileName: JTextField
-    val globalVoice = Voice('ü',/*SynGen(),*/false,ByteArray(16000 * 4))
+    private val globalVoice = Voice('ü',/*SynGen(),*/false,ByteArray(16000 * 4))
 
 
     init {//constructor
@@ -201,6 +202,7 @@ class AudioSynth01
         synButtonGroup.add(echoPulse)
         synButtonGroup.add(waWaPulse)
         synButtonGroup.add(sineWave)
+        synButtonGroup.add(superSaw)
 
         //Add radio buttons to a physical group and
         // center it in the Center of the GUI. Make
@@ -215,6 +217,7 @@ class AudioSynth01
         synButtonPanel.add(echoPulse)
         synButtonPanel.add(waWaPulse)
         synButtonPanel.add(sineWave)
+        synButtonPanel.add(superSaw)
 
         //Note that the centerPanel has center
         // alignment by default.
@@ -258,14 +261,7 @@ class AudioSynth01
         isVisible = true
         bigEndian = true
 
-        tones.addActionListener {performGenerate()}
-        stereoPanning.addActionListener {performGenerate()}
-        stereoPingpong.addActionListener {performGenerate()}
-        fmSweep.addActionListener {performGenerate()}
-        decayPulse.addActionListener {performGenerate()}
-        echoPulse.addActionListener {performGenerate()}
-        waWaPulse.addActionListener {performGenerate()}
-        sineWave.addActionListener {performGenerate()}
+        radioButtons.forEach{ it.addActionListener { performGenerate()} }
 
         addKeyListener(this)
         setFocusable(true)
@@ -401,7 +397,8 @@ class AudioSynth01
         if (decayPulse.isSelected) return sg::decayPulse
         if (echoPulse.isSelected) return sg::echoPulse
         if (waWaPulse.isSelected) return sg::waWaPulse
-        //if (sineWave.isSelected) return sg::sineWave
+        if (sineWave.isSelected) return sg::sineWave
+        if (superSaw.isSelected) return sg::superSaw
 
         return sg::sineWave
     }
