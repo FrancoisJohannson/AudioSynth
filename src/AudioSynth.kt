@@ -85,6 +85,7 @@ class AudioSynth01
     // 16-bit samples
     private val audioData: ByteArray
 
+    private var bLoopContinue = false
 
     //Following components appear in the North
     // position of the GUI.
@@ -160,16 +161,18 @@ class AudioSynth01
         }//end addActionListener()
 
         playLoop.addActionListener {
+            bLoopContinue = true
             /* Play or file the data synthetic data */
             playThread=Thread{ playDirectly() }
             playThread.start()
+
         }//end addActionListener()
 
 
-//        toggleLoop.addActionListener{
-//            if ( !toggleLoop.isSelected)
-//                playThread.interrupt()
-//        }
+        toggleLoop.addActionListener{
+            if ( !toggleLoop.isSelected)
+                bLoopContinue = false
+        }
 
         //Add two buttons and a text field to a
         // physical group in the North of the GUI.
@@ -269,8 +272,11 @@ class AudioSynth01
 
     override fun keyTyped(e: KeyEvent) {
         println("keyTyped: "+ e.keyChar)
-        playThread=Thread{ playDirectly() }
-        playThread.start()
+        if ( !bLoopContinue) {
+            bLoopContinue = true
+            playThread = Thread { playDirectly() }
+            playThread.start()
+        }
     }
 
     override fun keyPressed(e: KeyEvent) {
@@ -280,6 +286,7 @@ class AudioSynth01
     override fun keyReleased(e: KeyEvent) {
 
         println("keyReleased")
+        bLoopContinue = false
     }
 
 
@@ -424,7 +431,7 @@ class AudioSynth01
                     }//end if
                 }//end while
 
-                if ( !this.toggleLoop.isSelected )
+                if ( !bLoopContinue )
                     break
 
 
