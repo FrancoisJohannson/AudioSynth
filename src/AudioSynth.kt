@@ -293,6 +293,22 @@ class AudioSynth01
             'b' -> playNote(e.keyChar,391.9954f)  // G4
             'n' -> playNote(e.keyChar,440.0000f)  // A4
             'm' -> playNote(e.keyChar,493.8833f)  // B4
+            ',' -> playNote(e.keyChar,523.2511f)  // C5
+            '.' -> playNote(e.keyChar,587.3295f)  // D5
+            '-' -> playNote(e.keyChar,659.2551f)  // E5
+
+            'q' -> playNote(e.keyChar,698.4565f)  // F5
+            'w' -> playNote(e.keyChar,783.9909f)  // G5
+            'e' -> playNote(e.keyChar,880.0000f)  // A5
+            'r' -> playNote(e.keyChar,987.7666f)  // B5
+            't' -> playNote(e.keyChar,1046.502f)  // C6
+            'z' -> playNote(e.keyChar,1174.659f)  // D6
+            'u' -> playNote(e.keyChar,1318.510f)  // E6
+            'i' -> playNote(e.keyChar,1396.913f)  // F6
+            'o' -> playNote(e.keyChar,1567.982f)  // G6
+            'p' -> playNote(e.keyChar,1760.000f)  // A6
+
+
         }
 
 
