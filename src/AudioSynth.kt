@@ -405,10 +405,10 @@ class AudioSynth01
                 )
 
                 var cnt: Int
-                val playBuffer = ByteArray(16384)
+                val playBuffer = ByteArray(2048)
 
                 //Transfer the audio data to the speakers
-                while (true) {
+                while (bLoopContinue) {
 
                     cnt = audioInputStream.read(
                         playBuffer, 0,
@@ -420,7 +420,7 @@ class AudioSynth01
 
                     //Keep looping until the input read
                     // method returns -1 for empty stream.
-                    if (cnt > 0) {
+                    if ((cnt > 0) && bLoopContinue) {
                         //Write data to the internal buffer of
                         // the data line where it will be
                         // delivered to the speakers in real
@@ -431,11 +431,7 @@ class AudioSynth01
                     }//end if
                 }//end while
 
-                if ( !bLoopContinue )
-                    break
-
-
-            } while (true)
+            } while (bLoopContinue)
 
 
         //Block and wait for internal buffer of the
