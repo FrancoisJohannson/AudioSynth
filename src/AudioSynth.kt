@@ -76,7 +76,7 @@ class AudioSynth01
     private var channels: Int = 0
     // Allowable 1,2
 
-    private var playThread =Thread{}
+    //private var playThread =Thread{}
 
     private val bigEndian: Boolean
     //Allowable true,false
@@ -84,7 +84,7 @@ class AudioSynth01
     //A buffer to hold two seconds monaural and one
     // second stereo data at 16000 samp/sec for
     // 16-bit samples
-    private val audioData: ByteArray
+    //private val audioData: ByteArray
 
 
     //Following components appear in the North
@@ -112,6 +112,8 @@ class AudioSynth01
     // position of the GUI.
     private val listen = JRadioButton("Listen", true)
     private val fileName: JTextField
+    val globalVoice = Voice('ü',/*SynGen(),*/false,ByteArray(16000 * 4))
+
 
     init {//constructor
         //A panel for the North position.  Note the
@@ -144,9 +146,9 @@ class AudioSynth01
         //Register anonymous listeners on the
         // Generate button and the Play/File button.
         channels = 1
-        audioData = ByteArray(16000 * 4)
+        //audioData = ByteArray(16000 * 4)
 
-        val globalVoice = Voice('ü',/*SynGen(),*/false,audioData)
+
 
         //end actionPerformed
         showScopeBtn.addActionListener {
@@ -163,8 +165,7 @@ class AudioSynth01
 
         playLoop.addActionListener {
             /* Play or file the data synthetic data */
-            playThread=Thread{ globalVoice.playDirectly(sampleRate,channels,true) }
-            playThread.start()
+            globalVoice.playDirectly(sampleRate,channels,true)
 
         }//end addActionListener()
 
@@ -310,14 +311,15 @@ class AudioSynth01
         //if ( !bLoopContinue) {
 
             val sg = SynGen()
+            val audioData = ByteArray(16000 * 4)
+            sg.getSyntheticData(audioData)
+            channels = selectedEffect(sg).invoke(sampleRate,freq)
+
             val voice = Voice(key,/*sg,*/true,audioData)
             voicesActive.add(voice)
 
 
-            sg.getSyntheticData(audioData)
-            channels = selectedEffect(sg).invoke(sampleRate,freq)
-            playThread = Thread { voice.playDirectly(sampleRate,channels,bigEndian) }
-            playThread.start()
+            voice.playDirectly(sampleRate,channels,bigEndian)
         //}
     }
 
@@ -326,7 +328,7 @@ class AudioSynth01
         playOrFileBtn.isEnabled = false
         //Generate synthetic data
         val sg = SynGen()
-        sg.getSyntheticData(audioData)
+        sg.getSyntheticData(globalVoice.audioData)
 
         //Decide which synthetic data generator
         // method to invoke based on which radio
@@ -366,7 +368,7 @@ class AudioSynth01
 
     private fun showScope() {
         val frameScope = JFrame("$title channel 1")
-        val scope = Scope(audioData,16000.0,2,channels,1)
+        val scope = Scope(globalVoice.audioData,16000.0,2,channels,1)
         frameScope.contentPane = scope
         frameScope.pack()
         frameScope.minimumSize = frameScope.size
@@ -376,7 +378,7 @@ class AudioSynth01
         if ( channels == 2) {
 
             val frameScope = JFrame("$title channel 2")
-            val scope = Scope(audioData,16000.0,2,channels,2)
+            val scope = Scope(globalVoice.audioData,16000.0,2,channels,2)
             frameScope.contentPane = scope
             frameScope.pack()
             frameScope.minimumSize = frameScope.size
@@ -414,8 +416,8 @@ class AudioSynth01
                 showScopeBtn.isEnabled = false
                 playOrFileBtn.isEnabled = false
 
-                val voice = Voice('ü',/*SynGen(),*/false,audioData)
-                voice.playDirectly(sampleRate,channels,bigEndian)                //Get and display the elapsed time for
+                //val voice = Voice('ü',/*SynGen(),*/false,audioData)
+                globalVoice.playDirectly(sampleRate,channels,bigEndian)                //Get and display the elapsed time for
 
                 // the previous playback.
                 val elapsedTime = (Date().time - startTime).toInt()
@@ -436,7 +438,7 @@ class AudioSynth01
                 //Get an input stream on the byte array
                 // containing the data
                 val byteArrayInputStream = ByteArrayInputStream(
-                    audioData
+                    globalVoice.audioData
                 )
 
                 //Get the required audio format
@@ -456,7 +458,7 @@ class AudioSynth01
                 val audioInputStream = AudioInputStream(
                     byteArrayInputStream,
                     audioFormat,
-                    (audioData.size / audioFormat.frameSize).toLong()
+                    (globalVoice.audioData.size / audioFormat.frameSize).toLong()
                 )
 
                 //Write the data to an output file with

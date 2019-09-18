@@ -10,12 +10,31 @@ class Voice internal constructor(
     )
 {
 
-    public fun playDirectly(
+    //A buffer to hold two seconds monaural and one
+    // second stereo data at 16000 samp/sec for
+    // 16-bit samples
+    //private val audioData: ByteArray
+
+    private var playThread =Thread{}
+
+    fun playDirectly(
         sampleRate:Float,
         channels:Int,
         bigEndian:Boolean
         ) {
 
+        playThread=Thread{ playThread(sampleRate,channels,true) }
+        playThread.start()
+
+
+
+    }
+
+    fun playThread(
+        sampleRate:Float,
+        channels:Int,
+        bigEndian:Boolean
+    ) {
 
         //Get the required audio format
         val signed = true
@@ -97,6 +116,4 @@ class Voice internal constructor(
         sourceDataLine.close()
 
     }
-
-
 }

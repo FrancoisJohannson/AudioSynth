@@ -64,17 +64,17 @@ internal class SynGen {
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
 
-        println("=======================================")
-        println("sampLength:" + sampLength)
-        println("=======================================")
+//        println("=======================================")
+//        println("sampLength:" + sampLength)
+//        println("=======================================")
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
             val freq = frequency//arbitrary frequency
             val sinValue = sin(2.0 * Math.PI * freq * time)
 
-            if ( cnt < 200)
-                println(sinValue)
+//            if ( cnt < 200)
+//                println(sinValue)
 
             shortBuffer!!.put((16000 * sinValue).toShort())
         }//end for loop
