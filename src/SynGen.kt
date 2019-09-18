@@ -35,7 +35,7 @@ internal class SynGen {
 
     //This method generates a monaural tone
     // consisting of the sum of three sinusoids.
-    fun tones(sampleRate: Float): Int {
+    fun tones(sampleRate: Float, freq:Float): Int {
         //var sampleRate = sampleRate
         //Each channel requires two 8-bit bytes per
         // 16-bit sample.
@@ -45,7 +45,6 @@ internal class SynGen {
         val sampLength = byteLength / bytesPerSamp
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
-            val freq = 950.0//arbitrary frequency
             val sinValue = (sin(2.0 * Math.PI * freq * time) +
                     sin(2.0 * Math.PI * (freq / 1.8) * time) +
                     sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
@@ -89,7 +88,7 @@ internal class SynGen {
     // tone on the left speaker and moving across
     // to a lower frequency tone on the right
     // speaker.
-    fun stereoPanning(sampleRate: Float): Int {
+    fun stereoPanning(sampleRate: Float, frequency:Float): Int {
         val bytesPerSamp = 4//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
@@ -99,7 +98,7 @@ internal class SynGen {
             val rightGain = 16000.0 * cnt / sampLength
             val leftGain = 16000.0 - rightGain
 
-            setupStereoBuffer(sampleRate, leftGain, rightGain, cnt)
+            setupStereoBuffer(sampleRate, leftGain, rightGain, cnt,frequency)
         }//end for loop
 
         return 2
@@ -118,7 +117,7 @@ internal class SynGen {
     // produced is similar to that of U.S.
     // emergency vehicles.
 
-    fun stereoPingpong(sampleRate: Float): Int {
+    fun stereoPingpong(sampleRate: Float, frequency:Float): Int {
         val bytesPerSamp = 4//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
@@ -134,15 +133,20 @@ internal class SynGen {
                 rightGain = temp
             }//end if
 
-            setupStereoBuffer(sampleRate, leftGain, rightGain, cnt)
+            setupStereoBuffer(sampleRate, leftGain, rightGain, cnt, frequency)
         }//end for loop
 
         return 2
     }//end stereoPingpong method
 
-    private fun setupStereoBuffer(sampleRate: Float, leftGain: Double, rightGain: Double, cnt: Int) {
+    private fun setupStereoBuffer(
+        sampleRate: Float,
+        leftGain: Double,
+        rightGain: Double,
+        cnt: Int,
+        freq: Float ) {
         val time = (cnt / sampleRate).toDouble()
-        val freq = 600.0//An arbitrary frequency
+        //val freq = 600.0//An arbitrary frequency
         //Generate data for left speaker
         var sinValue = sin(2.0 * Math.PI * freq * time)
         shortBuffer!!.put(
@@ -158,17 +162,16 @@ internal class SynGen {
 
     //This method generates a monaural linear
     // frequency sweep from 100 Hz to 1000Hz.
-    fun fmSweep(sampleRate: Float): Int {
+    fun fmSweep(sampleRate: Float, frequency:Float): Int {
         val bytesPerSamp = 2//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
-        val lowFreq = 100.0
-        val highFreq = 1000.0
+        val highFreq = frequency+1000.0
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
 
-            val freq = lowFreq + cnt * (highFreq - lowFreq) / sampLength
+            val freq = frequency + cnt * (highFreq - frequency) / sampLength
             val sinValue = sin(2.0 * Math.PI * freq * time)
             shortBuffer!!.put((16000 * sinValue).toShort())
         }//end for loop
@@ -180,7 +183,7 @@ internal class SynGen {
     //This method generates a monaural triple-
     // frequency pulse that decays in a linear
     // fashion with time.
-    fun decayPulse(sampleRate: Float): Int {
+    fun decayPulse(sampleRate: Float, freq:Float): Int {
         val bytesPerSamp = 2//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
@@ -191,7 +194,7 @@ internal class SynGen {
             if (scale > sampLength) scale = sampLength.toDouble()
             val gain = 16000 * (sampLength - scale) / sampLength
             val time = (cnt / sampleRate).toDouble()
-            val freq = 499.0//an arbitrary freq
+            //val freq = 499.0//an arbitrary freq
             val sinValue = (sin(2.0 * Math.PI * freq * time) +
                     sin(2.0 * Math.PI * (freq / 1.8) * time) +
                     sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0
@@ -207,7 +210,7 @@ internal class SynGen {
     // fashion with time.  However, three echoes
     // can be heard over time with the amplitude
     // of the echoes also decreasing with time.
-    fun echoPulse(sampleRate: Float): Int {
+    fun echoPulse(sampleRate: Float, frequency:Float): Int {
         val bytesPerSamp = 2//Based on channels
         // Allowable 8000,11025,16000,22050,44100
         val sampLength = byteLength / bytesPerSamp
@@ -217,21 +220,21 @@ internal class SynGen {
         var cnt1 = 0
         while (cnt1 < sampLength) {
             var `val` = pulseHelper(
-                cnt1, sampLength, sampleRate
+                cnt1, sampLength, sampleRate, frequency
             )
             if (cnt2 > 0) {
                 `val` += 0.7 * pulseHelper(
-                    cnt2, sampLength, sampleRate
+                    cnt2, sampLength, sampleRate, frequency
                 )
             }//end if
             if (cnt3 > 0) {
                 `val` += 0.49 * pulseHelper(
-                    cnt3, sampLength, sampleRate
+                    cnt3, sampLength, sampleRate, frequency
                 )
             }//end if
             if (cnt4 > 0) {
                 `val` += 0.34 * pulseHelper(
-                    cnt4, sampLength, sampleRate
+                    cnt4, sampLength, sampleRate, frequency
                 )
             }//end if
 
@@ -260,7 +263,7 @@ internal class SynGen {
     // the composite synthetic signal.  This
     // resulted in a difference in the
     // sound.
-    fun waWaPulse(sampleRate: Float): Int {
+    fun waWaPulse(sampleRate: Float, frequency:Float): Int {
         //var sampleRate = sampleRate
         val bytesPerSamp = 2//Based on channels
         //sampleRate = 16000.0f
@@ -272,21 +275,21 @@ internal class SynGen {
         var cnt1 = 0
         while (cnt1 < sampLength) {
             var `val` = pulseHelper(
-                cnt1, sampLength, sampleRate
+                cnt1, sampLength, sampleRate, frequency
             )
             if (cnt2 > 0) {
                 `val` += -0.7 * pulseHelper(
-                    cnt2, sampLength, sampleRate
+                    cnt2, sampLength, sampleRate, frequency
                 )
             }//end if
             if (cnt3 > 0) {
                 `val` += 0.49 * pulseHelper(
-                    cnt3, sampLength, sampleRate
+                    cnt3, sampLength, sampleRate, frequency
                 )
             }//end if
             if (cnt4 > 0) {
                 `val` += -0.34 * pulseHelper(
-                    cnt4, sampLength, sampleRate
+                    cnt4, sampLength, sampleRate, frequency
                 )
             }//end if
 
@@ -301,14 +304,14 @@ internal class SynGen {
     }//end method waWaPulse
     //-------------------------------------------//
 
-    private fun pulseHelper(cnt: Int, sampLength: Int, sampleRate: Float): Double {
+    private fun pulseHelper(cnt: Int, sampLength: Int, sampleRate: Float, freq:Float): Double {
         //The value of scale controls the rate of
         // decay - large scale, fast decay.
         var scale = (2 * cnt).toDouble()
         if (scale > sampLength) scale = sampLength.toDouble()
         val gain = 16000 * (sampLength - scale) / sampLength
         val time = (cnt / sampleRate).toDouble()
-        val freq = 499.0//an arbitrary freq
+        //val freq = 499.0//an arbitrary freq
         val sinValue = (sin(2.0 * Math.PI * freq * time) +
                 sin(2.0 * Math.PI * (freq / 1.8) * time) +
                 sin(2.0 * Math.PI * (freq / 1.5) * time)) / 3.0

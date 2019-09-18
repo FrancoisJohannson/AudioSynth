@@ -285,7 +285,7 @@ class AudioSynth01
         if ( !bLoopContinue) {
             val sg = SynGen()
             sg.getSyntheticData(audioData)
-            sg.sineWave(sampleRate,frequency)
+            channels = selectedEffect(sg).invoke(sampleRate,frequency)
             bLoopContinue = true
             playThread = Thread { playDirectly() }
             playThread.start()
@@ -320,16 +320,7 @@ class AudioSynth01
         // new radio buttons.  Make additions here
         // if you add new synthetic generator
         // methods.
-        if (tones.isSelected) channels =  callGenerator(sg::tones,sampleRate, "Tones")
-        if (stereoPanning.isSelected)
-            channels = callGenerator(sg::stereoPanning,sampleRate,"Stereo Panning")
-        if (stereoPingpong.isSelected)
-            channels = callGenerator(sg::stereoPingpong,sampleRate, "Stereo Pingpong")
-        if (fmSweep.isSelected) channels = callGenerator(sg::fmSweep,sampleRate,"FM Sweep")
-        if (decayPulse.isSelected) channels = callGenerator(sg::decayPulse,sampleRate,"Decay Pulse")
-        if (echoPulse.isSelected) channels = callGenerator(sg::echoPulse,sampleRate,"Echo Pulse")
-        if (waWaPulse.isSelected) channels = callGenerator(sg::waWaPulse,sampleRate,"Wawa Pulse")
-        if (sineWave.isSelected) channels = sg.sineWave(sampleRate,440.0f)
+        channels = selectedEffect(sg).invoke(sampleRate,440.0f)
 
         //Now it is OK for the user to listen
         // to or file the synthetic audio data.
@@ -340,14 +331,20 @@ class AudioSynth01
         return sg
     }
 
-    private fun callGenerator(generatorFunction: (sampleRate:Float) -> Int, sampleRate: Float, title: String ) : Int {
+    private fun selectedEffect(sg:SynGen) : (sampleRate:Float,frequency:Float) -> Int {
 
-        val channels = generatorFunction(sampleRate)
+        if (tones.isSelected) return sg::tones
+        if (stereoPanning.isSelected) return sg::stereoPanning
+        if (stereoPingpong.isSelected) return sg::stereoPingpong
+        if (fmSweep.isSelected) return sg::fmSweep
+        if (decayPulse.isSelected) return sg::decayPulse
+        if (echoPulse.isSelected) return sg::echoPulse
+        if (waWaPulse.isSelected) return sg::waWaPulse
+        //if (sineWave.isSelected) return sg::sineWave
 
-
-
-        return channels
+        return sg::sineWave
     }
+
 
     private fun showScope() {
         val frameScope = JFrame("$title channel 1")
