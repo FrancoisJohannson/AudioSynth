@@ -108,6 +108,9 @@ class AudioSynth01
     private val waWaPulse = JRadioButton("WaWa Pulse")
     private val sineWave = JRadioButton("sineWave")
 
+    private val radioButtons :List<JRadioButton> = listOf( tones, stereoPanning, stereoPingpong, fmSweep, decayPulse, echoPulse, waWaPulse, sineWave  )
+
+
     //Following components appear in the South
     // position of the GUI.
     private val listen = JRadioButton("Listen", true)
@@ -116,6 +119,9 @@ class AudioSynth01
 
 
     init {//constructor
+
+        radioButtons.forEach{ it.background = Color.WHITE }
+
         //A panel for the North position.  Note the
         // etched border.
         val controlButtonPanel = JPanel()
@@ -130,6 +136,7 @@ class AudioSynth01
         // centered horizontally in the Center
         // position.
         val centerPanel = JPanel()
+        centerPanel.background = Color.WHITE
 
         //A panel for the South position.  Note the
         // etched border.
@@ -247,7 +254,7 @@ class AudioSynth01
         // the vertical component of the GUI size.
         title = "Copyright 2019, Francois Johannson"
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
-        setSize(250, 275)
+        setSize(400, 400)
         isVisible = true
         bigEndian = true
 
@@ -367,6 +374,9 @@ class AudioSynth01
 
 
     private fun showScope() {
+
+        val title = radioButtons.single { it.isSelected }.text
+
         val frameScope = JFrame("$title channel 1")
         val scope = Scope(globalVoice.audioData, 16000.0, channels, 1)
         frameScope.contentPane = scope
@@ -379,11 +389,11 @@ class AudioSynth01
 
             val frameScope2 = JFrame("$title channel 2")
             val scope2 = Scope(globalVoice.audioData, 16000.0, channels, 2)
-            frameScope.contentPane = scope2
-            frameScope.pack()
-            frameScope.minimumSize = frameScope2.size
-            frameScope.isLocationByPlatform = true
-            frameScope.isVisible = true
+            frameScope2.contentPane = scope2
+            frameScope2.pack()
+            frameScope2.minimumSize = frameScope2.size
+            frameScope2.isLocationByPlatform = true
+            frameScope2.isVisible = true
 
         }
     }
