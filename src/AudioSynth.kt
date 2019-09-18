@@ -272,24 +272,19 @@ class AudioSynth01
 
     override fun keyTyped(e: KeyEvent) {
         println("keyTyped: "+ e.keyChar)
-        var frequency: Float = 440.0f
 
         when(e?.keyChar) {
-            'a' -> frequency = 220.0f
-            's' -> frequency = 440.0f
-            'd' -> frequency = 660.0f
-            'f' -> frequency = 880.0f
+            'y' -> playNote(261.6256f)  // C4
+            'x' -> playNote(293.6648f)  // D4
+            'c' -> playNote(329.6276f)  // E4
+            'v' -> playNote(349.2282f)  // F4
+            'b' -> playNote(391.9954f)  // G4
+            'n' -> playNote(440.0000f)  // A4
+            'm' -> playNote(493.8833f)  // B4
         }
 
 
-        if ( !bLoopContinue) {
-            val sg = SynGen()
-            sg.getSyntheticData(audioData)
-            channels = selectedEffect(sg).invoke(sampleRate,frequency)
-            bLoopContinue = true
-            playThread = Thread { playDirectly() }
-            playThread.start()
-        }
+
     }
 
     override fun keyPressed(e: KeyEvent) {
@@ -302,6 +297,17 @@ class AudioSynth01
         bLoopContinue = false
     }
 
+
+    private fun playNote(freq:Float) {
+        if ( !bLoopContinue) {
+            val sg = SynGen()
+            sg.getSyntheticData(audioData)
+            channels = selectedEffect(sg).invoke(sampleRate,freq)
+            bLoopContinue = true
+            playThread = Thread { playDirectly() }
+            playThread.start()
+        }
+    }
 
     private fun performGenerate() : SynGen {
         //Don't allow Play during generation
