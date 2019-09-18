@@ -71,7 +71,7 @@ class AudioSynth01
 
     private val sampleRate = 16000.0f
 
-    private var keysActive : MutableList<Char> = mutableListOf()
+    private var voicesActive : MutableList<Voice> = mutableListOf()
 
     private var channels: Int = 0
     // Allowable 1,2
@@ -273,13 +273,13 @@ class AudioSynth01
 
     override fun keyTyped(e: KeyEvent) {
 
-        if ( keysActive.contains(e.keyChar))
+        if ( voicesActive.filter{v -> v.key == e.keyChar}.isNotEmpty() )
             return
 
         println("keyTyped: "+ e.keyChar)
 
 
-        keysActive.add(e.keyChar)
+        voicesActive.add(Voice(e.keyChar))
 
         when(e?.keyChar) {
             'y' -> playNote(261.6256f)  // C4
@@ -303,9 +303,9 @@ class AudioSynth01
 
         println("keyReleased: " + e.keyChar)
 
-        keysActive.remove(e.keyChar)
+        voicesActive.removeIf{v -> v.key == e.keyChar}
 
-        if ( keysActive.size == 0 )
+        if ( voicesActive.size == 0 )
             bLoopContinue = false
     }
 
