@@ -282,32 +282,46 @@ class AudioSynth01
         if ( voicesActive.filter{v -> v.key == e.keyChar}.isNotEmpty() )
             return
 
-        println("keyTyped: "+ e.keyChar)
+
 
 
         when(e.keyChar) {
             'y' -> playNote(e.keyChar,261.6256f)  // C4
+                's' -> playNote(e.keyChar,277.1826f)  // C#4
             'x' -> playNote(e.keyChar,293.6648f)  // D4
+                'd' -> playNote(e.keyChar,311.1270f)  // D#4
             'c' -> playNote(e.keyChar,329.6276f)  // E4
             'v' -> playNote(e.keyChar,349.2282f)  // F4
+                'g' -> playNote(e.keyChar,369.9944f)  // F#4
             'b' -> playNote(e.keyChar,391.9954f)  // G4
+                'h' -> playNote(e.keyChar,415.3047f)  // G#4
             'n' -> playNote(e.keyChar,440.0000f)  // A4
+                'j' -> playNote(e.keyChar,466.1638f)  // A#4
             'm' -> playNote(e.keyChar,493.8833f)  // B4
             ',' -> playNote(e.keyChar,523.2511f)  // C5
+                'l' -> playNote(e.keyChar,554.3653f)  // C#5
             '.' -> playNote(e.keyChar,587.3295f)  // D5
+                'ö' -> playNote(e.keyChar,622.2540f)  // D#5
             '-' -> playNote(e.keyChar,659.2551f)  // E5
 
             'q' -> playNote(e.keyChar,698.4565f)  // F5
+                '2' -> playNote(e.keyChar,739.9888f)  // F#5
             'w' -> playNote(e.keyChar,783.9909f)  // G5
+                '3' -> playNote(e.keyChar,830.6094f)  // G#5
             'e' -> playNote(e.keyChar,880.0000f)  // A5
+                '4' -> playNote(e.keyChar,932.3275f)  // A#5
             'r' -> playNote(e.keyChar,987.7666f)  // B5
             't' -> playNote(e.keyChar,1046.502f)  // C6
+                '6' -> playNote(e.keyChar,1108.731f)  // C#6
             'z' -> playNote(e.keyChar,1174.659f)  // D6
+                '7' -> playNote(e.keyChar,1244.508f)  // D#6
             'u' -> playNote(e.keyChar,1318.510f)  // E6
             'i' -> playNote(e.keyChar,1396.913f)  // F6
+                '9' -> playNote(e.keyChar,1479.978f)  // F#6
             'o' -> playNote(e.keyChar,1567.982f)  // G6
+                '0' -> playNote(e.keyChar,1661.219f)  // G#6
             'p' -> playNote(e.keyChar,1760.000f)  // A6
-
+                'ß' -> playNote(e.keyChar,1864.655f)  // A#6
 
         }
 
@@ -323,15 +337,19 @@ class AudioSynth01
 
         println("keyReleased: " + e.keyChar)
 
-        val voice = voicesActive.filter{v -> v.key == e.keyChar}.single()
-        voice.bLoopContinue = false
-        voicesActive.removeIf{v -> v.key == e.keyChar}
+        if ( voicesActive.filter{v -> v.key == e.keyChar}.isNotEmpty() ) {
+            val voice = voicesActive.filter { v -> v.key == e.keyChar }.single()
+            voice.bLoopContinue = false
+            voicesActive.removeIf { v -> v.key == e.keyChar }
+        }
 
     }
 
 
     private fun playNote(key:Char, freq:Float) {
         //if ( !bLoopContinue) {
+
+            println("keyTyped: $key")
 
             val sg = SynGen()
             val audioData = ByteArray(16000 * 4)
