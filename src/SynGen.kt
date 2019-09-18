@@ -70,8 +70,7 @@ internal class SynGen {
 
         for (cnt in 0 until sampLength) {
             val time = (cnt / sampleRate).toDouble()
-            val freq = frequency//arbitrary frequency
-            val sinValue = sin(2.0 * Math.PI * freq * time)
+            val sinValue = sin(2.0 * Math.PI * frequency * time)
 
 //            if ( cnt < 200)
 //                println(sinValue)

@@ -278,7 +278,7 @@ class AudioSynth01
         println("keyTyped: "+ e.keyChar)
 
 
-        when(e?.keyChar) {
+        when(e.keyChar) {
             'y' -> playNote(e.keyChar,261.6256f)  // C4
             'x' -> playNote(e.keyChar,293.6648f)  // D4
             'c' -> playNote(e.keyChar,329.6276f)  // E4
@@ -368,7 +368,7 @@ class AudioSynth01
 
     private fun showScope() {
         val frameScope = JFrame("$title channel 1")
-        val scope = Scope(globalVoice.audioData,16000.0,2,channels,1)
+        val scope = Scope(globalVoice.audioData, 16000.0, channels, 1)
         frameScope.contentPane = scope
         frameScope.pack()
         frameScope.minimumSize = frameScope.size
@@ -377,11 +377,11 @@ class AudioSynth01
 
         if ( channels == 2) {
 
-            val frameScope = JFrame("$title channel 2")
-            val scope = Scope(globalVoice.audioData,16000.0,2,channels,2)
-            frameScope.contentPane = scope
+            val frameScope2 = JFrame("$title channel 2")
+            val scope2 = Scope(globalVoice.audioData, 16000.0, channels, 2)
+            frameScope.contentPane = scope2
             frameScope.pack()
-            frameScope.minimumSize = frameScope.size
+            frameScope.minimumSize = frameScope2.size
             frameScope.isLocationByPlatform = true
             frameScope.isVisible = true
 

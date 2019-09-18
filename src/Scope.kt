@@ -7,9 +7,8 @@ import java.awt.BorderLayout
 
 
 class Scope internal constructor(
-    private val buf: ByteArray,
+    buf: ByteArray,
     private val maxVol: Double,
-    private val bytesPerFrame: Int,
     private val channels: Int,
     private val displayedChannel: Int
 

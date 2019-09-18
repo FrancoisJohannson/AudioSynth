@@ -4,16 +4,15 @@ import javax.sound.sampled.*
 class Voice internal constructor(
 
     val key: Char,
-    //val sg: SynGen,
     var bLoopContinue:Boolean,
-    val audioData: ByteArray
-    )
-{
 
     //A buffer to hold two seconds monaural and one
     // second stereo data at 16000 samp/sec for
     // 16-bit samples
-    //private val audioData: ByteArray
+    val audioData: ByteArray
+    )
+{
+
 
     private var playThread =Thread{}
 
@@ -23,9 +22,8 @@ class Voice internal constructor(
         bigEndian:Boolean
         ) {
 
-        playThread=Thread{ playThread(sampleRate,channels,true) }
+        playThread=Thread{ playThread(sampleRate,channels,bigEndian) }
         playThread.start()
-
 
 
     }
